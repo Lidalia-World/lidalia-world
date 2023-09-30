@@ -23,14 +23,14 @@ sealed interface UriReference {
     val scheme: Scheme?
     val hierarchicalPart: HierarchicalOrRelativePart
     val authority: Authority? get() = hierarchicalPart.authority
-    val path: HierarchicalOrRelativePath get() = hierarchicalPart.path
+    val path: Path get() = hierarchicalPart.path
     val query: Query?
     val fragment: Fragment?
 }
 
 sealed interface HierarchicalOrRelativePart {
     val authority: Authority?
-    val path: HierarchicalOrRelativePath
+    val path: Path
 }
 
 sealed interface HierarchicalOrRelativePartWithAuthority : HierarchicalOrRelativePart {
@@ -38,17 +38,11 @@ sealed interface HierarchicalOrRelativePartWithAuthority : HierarchicalOrRelativ
     override val path: PathAbEmpty
 }
 
-sealed interface HierarchicalOrRelativePath : Path {
-    override val segments: List<Segment>
-    override val firstSegment: Segment?
-    override val secondSegment: Segment?
-}
-
 interface AbsoluteUri: Uri {
     override val scheme: Scheme
     override val hierarchicalPart: HierarchicalPart
-    override val authority: Authority?
-    override val path: HierarchicalPartPath
+    override val authority: Authority? get() = hierarchicalPart.authority
+    override val path: HierarchicalPartPath get() = hierarchicalPart.path
     override val query: Query?
     override val fragment: Nothing? get() = null
 }
@@ -96,7 +90,7 @@ sealed interface RelativeAndHierarchicalPartPath : RelativePartPath, Hierarchica
     override val secondSegment: Segment?
 }
 
-interface PathAbEmpty : Path, RelativeAndHierarchicalPartPath {
+interface PathAbEmpty : RelativeAndHierarchicalPartPath {
     override val authority: Nothing? get() = null
     override val path: PathAbEmpty get() = this
     override val firstSegment: SegmentEmpty?
@@ -104,7 +98,7 @@ interface PathAbEmpty : Path, RelativeAndHierarchicalPartPath {
     override val secondSegment: Segment?
 }
 
-interface PathAbsolute : Path, RelativeAndHierarchicalPartPath {
+interface PathAbsolute : RelativeAndHierarchicalPartPath {
     override val authority: Nothing? get() = null
     override val path: PathAbsolute get() = this
     override val segments: ListNonEmpty<Segment>
@@ -112,7 +106,7 @@ interface PathAbsolute : Path, RelativeAndHierarchicalPartPath {
     override val secondSegment: SegmentNonEmpty?
 }
 
-interface PathNoScheme : Path, RelativePartPath {
+interface PathNoScheme : RelativePartPath {
     override val authority: Nothing? get() = null
     override val path: PathNoScheme get() = this
     override val segments: ListNonEmpty<Segment>
@@ -120,7 +114,7 @@ interface PathNoScheme : Path, RelativePartPath {
     override val secondSegment: Segment?
 }
 
-interface PathRootless : Path, HierarchicalPartPath {
+interface PathRootless : HierarchicalPartPath {
     override val authority: Nothing? get() = null
     override val path: PathRootless get() = this
     override val segments: ListNonEmpty<Segment>
@@ -128,7 +122,7 @@ interface PathRootless : Path, HierarchicalPartPath {
     override val secondSegment: Segment?
 }
 
-object PathEmpty : PathAbEmpty, RelativeAndHierarchicalPartPath {
+object PathEmpty : PathAbEmpty {
     override val authority: Nothing? = null
     override val path: PathEmpty = this
     override val segments: List<Segment> = emptyList()
@@ -145,7 +139,7 @@ interface Query
 
 interface Fragment
 
-sealed interface HierarchicalPartPath: HierarchicalPart, HierarchicalOrRelativePath {
+sealed interface HierarchicalPartPath: HierarchicalPart, Path {
     override val authority: Nothing? get() = null
     override val path: HierarchicalPartPath get() = this
     override val segments: List<Segment>
@@ -158,7 +152,7 @@ sealed interface RelativePart : HierarchicalOrRelativePart {
     override val path: RelativePartPath
 }
 
-sealed interface RelativePartPath: RelativePart, HierarchicalOrRelativePath {
+sealed interface RelativePartPath: RelativePart, Path {
     override val authority: Nothing? get() = null
     override val path: RelativePartPath get() = this
     override val segments: List<Segment>
@@ -187,4 +181,13 @@ interface Url : UrlReferenceWithAuthority, Uri {
     override val path: PathAbEmpty get() = hierarchicalPart.path
     override val query: Query?
     override val fragment: Fragment?
+}
+
+interface AbsoluteUrl : Url, AbsoluteUri {
+    override val scheme: Scheme
+    override val hierarchicalPart: HierarchicalPartWithAuthority
+    override val authority: Authority get() = hierarchicalPart.authority
+    override val path: PathAbEmpty get() = hierarchicalPart.path
+    override val query: Query?
+    override val fragment: Nothing? get() = null
 }
