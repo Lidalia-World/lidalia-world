@@ -84,19 +84,13 @@ sealed interface Path {
   val secondSegment: Segment?
 }
 
-sealed interface RelativeAndHierarchicalPartPath : RelativePartPath, HierarchicalPartPath {
+interface PathAbEmpty : RelativePartPath, HierarchicalPartPath {
   override val segments: List<Segment>
-  override val firstSegment: Segment?
-  override val secondSegment: Segment?
-}
-
-interface PathAbEmpty : RelativeAndHierarchicalPartPath {
   override val firstSegment: SegmentEmpty?
-  override val segments: List<Segment>
   override val secondSegment: Segment?
 }
 
-interface PathAbsolute : RelativeAndHierarchicalPartPath {
+interface PathAbsolute : RelativePartPath, HierarchicalPartPath {
   override val segments: ListNonEmpty<Segment>
   override val firstSegment: SegmentEmpty
   override val secondSegment: SegmentNonEmpty?
