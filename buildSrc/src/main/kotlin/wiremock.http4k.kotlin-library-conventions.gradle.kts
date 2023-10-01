@@ -1,3 +1,5 @@
+import org.gradle.accessors.dm.LibrariesForLibs
+
 plugins {
   // Apply the common convention plugin for shared build configuration between library and application projects.
   id("wiremock.http4k.kotlin-common-conventions")
@@ -6,16 +8,21 @@ plugins {
   `java-library`
 }
 
-dependencies {
+val libs = the<LibrariesForLibs>()
 
-  val kotestVersion = "5.7.2"
-  testImplementation(platform("io.kotest:kotest-bom:$kotestVersion"))
-  testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+dependencies {
+  testImplementation(platform(libs.kotest.bom))
+
+  testImplementation(libs.kotest.runner.junit5)
+  testImplementation(libs.kotest.framework.api)
+  testImplementation(libs.kotest.assertions.shared)
 }
 
-tasks.named<Test>("test") {
-  // Use JUnit Platform for unit tests.
-  useJUnitPlatform()
-  systemProperty("kotest.framework.classpath.scanning.config.disable", "true")
-  systemProperty("kotest.framework.classpath.scanning.autoscan.disable", "true")
+tasks {
+  test {
+    // Use JUnit Platform for unit tests.
+    useJUnitPlatform()
+    systemProperty("kotest.framework.classpath.scanning.config.disable", "true")
+    systemProperty("kotest.framework.classpath.scanning.autoscan.disable", "true")
+  }
 }

@@ -15,4 +15,6 @@ repositories {
 dependencies {
   implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.10")
   implementation("org.jmailen.kotlinter:org.jmailen.kotlinter.gradle.plugin:3.16.0")
+  // https://github.com/gradle/gradle/issues/15383
+  implementation(files(libs.javaClass.superclass.protectionDomain.codeSource.location))
 }
