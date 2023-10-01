@@ -50,6 +50,20 @@ val pathSubTypes = setOf(
   PathRootless::class,
 )
 
+val hierarchicalOrRelativePartWithAuthoritySubTypes = setOf(
+  HierarchicalPartWithAuthority::class,
+  RelativePartWithAuthority::class,
+)
+
+val hierarchicalOrRelativePartSubTypes =
+  setOf(
+    HierarchicalOrRelativePartWithAuthority::class,
+    HierarchicalPart::class,
+    RelativePart::class,
+  ) +
+  hierarchicalPartSubTypes +
+  relativePartSubTypes
+
 class ExpectedTypesSpec : StringSpec({
 
   val reflections = Reflections("lidalia.uri")
@@ -61,6 +75,8 @@ class ExpectedTypesSpec : StringSpec({
     subTypesOf<RelativePart>(relativePartSubTypes),
     subTypesOf<RelativePartPath>(relativePartPathSubTypes),
     subTypesOf<Path>(pathSubTypes),
+    subTypesOf<HierarchicalOrRelativePart>(hierarchicalOrRelativePartSubTypes),
+    subTypesOf<HierarchicalOrRelativePartWithAuthority>(hierarchicalOrRelativePartWithAuthoritySubTypes),
   ) { (parentType, subTypes) ->
     reflections.getSubTypesOf(parentType) shouldBe subTypes
   }
@@ -70,19 +86,15 @@ class ExpectedTypesSpec : StringSpec({
   }
 })
 
+private inline fun <reified T : Any> subTypesOf(subTypes: Set<KClass<out T>>) = SubTypesTestCase(T::class, subTypes)
+
 data class SubTypesTestCase<T : Any>(
   val kClass: KClass<T>,
   val subTypes: Set<KClass<out T>>
 ) : WithDataTestName {
-  override fun dataTestName() = "The subtypes of ${kClass.simpleName} are ${subTypes.simpleNames}"
+  override fun dataTestName() =
+    "The subtypes of ${kClass.simpleName} are ${subTypes.map { it.simpleName }}"
 }
-
-private inline fun <reified T : Any> subTypesOf(subTypes: Set<KClass<out T>>) = SubTypesTestCase(T::class, subTypes)
-
-private inline fun <reified T : Any> Reflections.getSubTypesOf(): Set<KClass<out T>> =
-  getSubTypesOf(T::class.java).map { it.kotlin }.toSet()
 
 private fun <T : Any> Reflections.getSubTypesOf(kClass: KClass<T>): Set<KClass<out T>> =
   getSubTypesOf(kClass.java).map { it.kotlin }.toSet()
-
-private val <T : Any> Set<KClass<out T>>.simpleNames get() = map { it.simpleName }
