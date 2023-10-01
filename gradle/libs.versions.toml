@@ -1,9 +1,14 @@
-[versions]
-kotest = "5.7.2"
-
 [libraries]
-kotest-bom = { module = "io.kotest:kotest-bom", version.ref = "kotest" }
+kotest-bom = { module = "io.kotest:kotest-bom", version = "5.7.2" }
 
 kotest-runner-junit5 = { module = "io.kotest:kotest-runner-junit5" }
 kotest-framework-api = { module = "io.kotest:kotest-framework-api" }
 kotest-assertions-shared = { module = "io.kotest:kotest-assertions-shared" }
+
+kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version = "1.9.10" }
+kotlinter-gradle-plugin = { module = "org.jmailen.kotlinter:org.jmailen.kotlinter.gradle.plugin", version = "3.16.0" }
+
+[plugins]
+dependency-analysis = { id = "com.autonomousapps.dependency-analysis",  version = "1.24.0" }
+task-tree = { id = "com.dorongold.task-tree",  version = "2.1.1" }
+versions = { id = "com.github.ben-manes.versions",  version = "0.48.0" }
