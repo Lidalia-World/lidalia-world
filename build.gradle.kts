@@ -33,6 +33,7 @@ dependencyAnalysis {
       // set behavior for all issue types
       onAny {
         severity("fail")
+        exclude("org.jetbrains.kotlin:kotlin-reflect")
       }
     }
   }

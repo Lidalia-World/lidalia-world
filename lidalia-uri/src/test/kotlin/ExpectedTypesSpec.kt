@@ -61,8 +61,8 @@ val hierarchicalOrRelativePartSubTypes =
     HierarchicalPart::class,
     RelativePart::class,
   ) +
-  hierarchicalPartSubTypes +
-  relativePartSubTypes
+    hierarchicalPartSubTypes +
+    relativePartSubTypes
 
 class ExpectedTypesSpec : StringSpec({
 
@@ -76,7 +76,9 @@ class ExpectedTypesSpec : StringSpec({
     subTypesOf<RelativePartPath>(relativePartPathSubTypes),
     subTypesOf<Path>(pathSubTypes),
     subTypesOf<HierarchicalOrRelativePart>(hierarchicalOrRelativePartSubTypes),
-    subTypesOf<HierarchicalOrRelativePartWithAuthority>(hierarchicalOrRelativePartWithAuthoritySubTypes),
+    subTypesOf<HierarchicalOrRelativePartWithAuthority>(
+      hierarchicalOrRelativePartWithAuthoritySubTypes
+    ),
   ) { (parentType, subTypes) ->
     reflections.getSubTypesOf(parentType) shouldBe subTypes
   }
@@ -86,11 +88,16 @@ class ExpectedTypesSpec : StringSpec({
   }
 })
 
-private inline fun <reified T : Any> subTypesOf(subTypes: Set<KClass<out T>>) = SubTypesTestCase(T::class, subTypes)
+private inline fun <reified T : Any> subTypesOf(
+  subTypes: Set<KClass<out T>>,
+) = SubTypesTestCase(
+  T::class,
+  subTypes
+)
 
 data class SubTypesTestCase<T : Any>(
   val kClass: KClass<T>,
-  val subTypes: Set<KClass<out T>>
+  val subTypes: Set<KClass<out T>>,
 ) : WithDataTestName {
   override fun dataTestName() =
     "The subtypes of ${kClass.simpleName} are ${subTypes.map { it.simpleName }}"
