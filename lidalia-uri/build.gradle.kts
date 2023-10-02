@@ -3,6 +3,9 @@ plugins {
 }
 
 dependencies {
+
+  implementation(projects.lidaliaKotlinLang)
+
   testImplementation(libs.reflections)
   testImplementation(libs.kotlin.reflect)
   testImplementation(libs.kotest.framework.datatest)

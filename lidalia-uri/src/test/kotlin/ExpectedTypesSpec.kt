@@ -1,4 +1,4 @@
-package lidalia.uri
+package uk.org.lidalia.uri
 
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.datatest.WithDataTestName
@@ -66,7 +66,7 @@ val hierarchicalOrRelativePartSubTypes =
 
 class ExpectedTypesSpec : StringSpec({
 
-  val reflections = Reflections("lidalia.uri")
+  val reflections = Reflections("uk.org.lidalia.uri")
 
   withData(
     subTypesOf<UriReference>(uriReferenceSubTypes),

@@ -3,8 +3,21 @@ kotlin = "1.9.10"
 
 [libraries]
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
-kotest-bom = { module = "io.kotest:kotest-bom", version = "5.7.2" }
 
+arrow-stack = { module = "io.arrow-kt:arrow-stack", version = "1.2.1" }
+arrow-annotations = { module = "io.arrow-kt:arrow-annotations" }
+arrow-continuations = { module = "io.arrow-kt:arrow-continuations" }
+arrow-atomic = { module = "io.arrow-kt:arrow-atomic" }
+arrow-core = { module = "io.arrow-kt:arrow-core" }
+arrow-core-retrofit = { module = "io.arrow-kt:arrow-core-retrofit" }
+arrow-fx-coroutines = { module = "io.arrow-kt:arrow-fx-coroutines" }
+arrow-fx-stm = { module = "io.arrow-kt:arrow-fx-stm" }
+arrow-resilience = { module = "io.arrow-kt:arrow-resilience" }
+arrow-optics = { module = "io.arrow-kt:arrow-optics" }
+arrow-optics-reflect = { module = "io.arrow-kt:arrow-optics-reflect" }
+arrow-optics-ksp-plugin = { module = "io.arrow-kt:arrow-optics-ksp-plugin" }
+
+kotest-bom = { module = "io.kotest:kotest-bom", version = "5.7.2" }
 kotest-common = { module = "io.kotest:kotest-common" }
 kotest-extensions = { module = "io.kotest:kotest-extensions" }
 kotest-property = { module = "io.kotest:kotest-property" }
