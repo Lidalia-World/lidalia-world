@@ -10,10 +10,8 @@ class ComposedEncoder<Decoded, MidFormat, RawEncoded>(
     )
   }
 
-  override fun encode(decoded: Decoded): ComposedEncoded<Decoded, RawEncoded> {
-    return ComposedEncoded(
-      decoded,
-      encoder2.encode(encoder1.encode(decoded).raw).raw
-    )
-  }
+  override fun encode(decoded: Decoded): ComposedEncoded<Decoded, RawEncoded> = ComposedEncoded(
+    decoded,
+    encoder2.encode(encoder1.encode(decoded).raw).raw,
+  )
 }

@@ -38,7 +38,24 @@ interface HierarchicalPartWithAuthority :
   override val path: PathAbEmpty
 
   companion object : CharSequenceParser<Exception, HierarchicalPartWithAuthority> {
-    override operator fun invoke(input: CharSequence): Either<Exception, HierarchicalPartWithAuthority> {
+    override operator fun invoke(
+      input: CharSequence,
+    ): Either<Exception, HierarchicalPartWithAuthority> {
+      TODO("Not yet implemented")
+    }
+  }
+}
+
+interface HierarchicalPartWithoutAuthority :
+  HierarchicalPart,
+  HierarchicalOrRelativePartWithoutAuthority {
+  override val authority: Nothing?
+  override val path: PathAbEmpty
+
+  companion object : CharSequenceParser<Exception, HierarchicalPartWithoutAuthority> {
+    override operator fun invoke(
+      input: CharSequence,
+    ): Either<Exception, HierarchicalPartWithoutAuthority> {
       TODO("Not yet implemented")
     }
   }
@@ -64,7 +81,9 @@ sealed interface HierarchicalOrRelativePart {
   val path: Path
 
   companion object : CharSequenceParser<Exception, HierarchicalOrRelativePart> {
-    override operator fun invoke(input: CharSequence): Either<Exception, HierarchicalOrRelativePart> {
+    override operator fun invoke(
+      input: CharSequence,
+    ): Either<Exception, HierarchicalOrRelativePart> {
       TODO("Not yet implemented")
     }
   }
@@ -75,7 +94,22 @@ sealed interface HierarchicalOrRelativePartWithAuthority : HierarchicalOrRelativ
   override val path: PathAbEmpty
 
   companion object : CharSequenceParser<Exception, HierarchicalOrRelativePartWithAuthority> {
-    override operator fun invoke(input: CharSequence): Either<Exception, HierarchicalOrRelativePartWithAuthority> {
+    override operator fun invoke(
+      input: CharSequence,
+    ): Either<Exception, HierarchicalOrRelativePartWithAuthority> {
+      TODO("Not yet implemented")
+    }
+  }
+}
+
+sealed interface HierarchicalOrRelativePartWithoutAuthority : HierarchicalOrRelativePart {
+  override val authority: Nothing?
+  override val path: PathAbEmpty
+
+  companion object : CharSequenceParser<Exception, HierarchicalOrRelativePartWithoutAuthority> {
+    override operator fun invoke(
+      input: CharSequence,
+    ): Either<Exception, HierarchicalOrRelativePartWithoutAuthority> {
       TODO("Not yet implemented")
     }
   }
@@ -91,18 +125,41 @@ interface AbsoluteUri : Uri {
 
   companion object : CharSequenceParser<Exception, AbsoluteUri> {
     override operator fun invoke(input: CharSequence): Either<Exception, AbsoluteUri> {
-      TODO("Not yet implemented")
+      TODO()
+//      if (input.contains(":")) {
+//        val (scheme, rest) = input.split(':', limit = 2)
+//      }
     }
   }
 }
 
-interface RelativeRef : UriReference {
+interface UriWithFragment : Uri {
+  override val scheme: Scheme
+  override val hierarchicalPart: HierarchicalPart
+  override val authority: Authority? get() = hierarchicalPart.authority
+  override val path: HierarchicalPartPath get() = hierarchicalPart.path
+  override val query: Query?
+  override val fragment: Fragment
+
+  companion object : CharSequenceParser<Exception, AbsoluteUri> {
+    override operator fun invoke(input: CharSequence): Either<Exception, AbsoluteUri> {
+      TODO()
+//      if (input.contains(":")) {
+//        val (scheme, rest) = input.split(':', limit = 2)
+//      }
+    }
+  }
+}
+
+data class RelativeRef(
+  override val hierarchicalPart: RelativePart,
+  override val query: Query? = null,
+  override val fragment: Fragment? = null,
+) : UriReference {
+
   override val scheme: Nothing? get() = null
-  override val hierarchicalPart: RelativePart
   override val authority: Authority? get() = hierarchicalPart.authority
   override val path: RelativePartPath get() = hierarchicalPart.path
-  override val query: Query?
-  override val fragment: Fragment?
 
   companion object : CharSequenceParser<Exception, RelativeRef> {
     override operator fun invoke(input: CharSequence): Either<Exception, RelativeRef> {
@@ -113,7 +170,8 @@ interface RelativeRef : UriReference {
 
 interface ListNonEmpty<out E> : List<E>
 
-interface Scheme
+@JvmInline
+value class Scheme(val value: String)
 
 interface Authority {
   val userInfo: UserInfo?
@@ -126,7 +184,9 @@ interface UserInfo
 sealed interface Host
 
 interface IpLiteral : Host
+
 interface Ipv4Address : Host
+
 interface RegisteredName : Host
 
 interface Port
@@ -197,14 +257,19 @@ object PathEmpty : PathAbEmpty, CharSequenceParser<Exception, PathEmpty> {
   override val secondSegment: Nothing? = null
 
   override operator fun invoke(input: CharSequence): Either<Exception, PathEmpty> =
-    if (input.isEmpty()) this.right()
-    else Exception().left()
+    if (input.isEmpty()) {
+      this.right()
+    } else {
+      Exception().left()
+    }
 
   override fun toString(): String = ""
 }
 
 interface Segment
+
 interface SegmentNonEmpty : Segment
+
 interface SegmentNonEmptyNoColon : SegmentNonEmpty
 object SegmentEmpty : Segment
 
@@ -252,28 +317,15 @@ interface RelativePartWithAuthority : RelativePart, HierarchicalOrRelativePartWi
   override val path: PathAbEmpty
 
   companion object : CharSequenceParser<Exception, RelativePartWithAuthority> {
-    override operator fun invoke(input: CharSequence): Either<Exception, RelativePartWithAuthority> {
+    override operator fun invoke(
+      input: CharSequence,
+    ): Either<Exception, RelativePartWithAuthority> {
       TODO("Not yet implemented")
     }
   }
 }
 
-interface UrlReferenceWithAuthority : UriReference {
-  override val scheme: Scheme?
-  override val hierarchicalPart: HierarchicalOrRelativePartWithAuthority
-  override val authority: Authority get() = hierarchicalPart.authority
-  override val path: PathAbEmpty get() = hierarchicalPart.path
-  override val query: Query?
-  override val fragment: Fragment?
-
-  companion object : CharSequenceParser<Exception, UrlReferenceWithAuthority> {
-    override operator fun invoke(input: CharSequence): Either<Exception, UrlReferenceWithAuthority> {
-      TODO("Not yet implemented")
-    }
-  }
-}
-
-interface Url : UrlReferenceWithAuthority, Uri {
+sealed interface Url : Uri {
   override val scheme: Scheme
   override val hierarchicalPart: HierarchicalPartWithAuthority
   override val authority: Authority get() = hierarchicalPart.authority
@@ -288,16 +340,74 @@ interface Url : UrlReferenceWithAuthority, Uri {
   }
 }
 
-interface AbsoluteUrl : Url, AbsoluteUri {
-  override val scheme: Scheme
-  override val hierarchicalPart: HierarchicalPartWithAuthority
+data class UrlWithFragment(
+  override val scheme: Scheme,
+  override val hierarchicalPart: HierarchicalPartWithAuthority,
+  override val query: Query?,
+  override val fragment: Fragment,
+) : Url, UriWithFragment {
   override val authority: Authority get() = hierarchicalPart.authority
   override val path: PathAbEmpty get() = hierarchicalPart.path
-  override val query: Query?
+}
+
+data class AbsoluteUrl(
+  override val scheme: Scheme,
+  override val hierarchicalPart: HierarchicalPartWithAuthority,
+  override val query: Query?,
+) : Url, AbsoluteUri {
+  override val authority: Authority get() = hierarchicalPart.authority
+  override val path: PathAbEmpty get() = hierarchicalPart.path
   override val fragment: Nothing? get() = null
 
   companion object : CharSequenceParser<Exception, AbsoluteUrl> {
     override operator fun invoke(input: CharSequence): Either<Exception, AbsoluteUrl> {
+      TODO("Not yet implemented")
+    }
+  }
+}
+
+sealed interface Urn : Uri {
+  override val scheme: Scheme
+  override val hierarchicalPart: HierarchicalPartWithoutAuthority
+  override val authority: Nothing? get() = null
+  override val path: PathAbEmpty get() = hierarchicalPart.path
+  override val query: Query?
+  override val fragment: Fragment?
+
+  companion object : CharSequenceParser<Exception, Urn> {
+    override operator fun invoke(input: CharSequence): Either<Exception, Urn> {
+      TODO("Not yet implemented")
+    }
+  }
+}
+
+data class UrnWithFragment(
+  override val scheme: Scheme,
+  override val hierarchicalPart: HierarchicalPartWithoutAuthority,
+  override val query: Query?,
+  override val fragment: Fragment,
+) : Urn, UriWithFragment {
+  override val authority: Nothing? get() = null
+  override val path: PathAbEmpty get() = hierarchicalPart.path
+
+  companion object : CharSequenceParser<Exception, UrnWithFragment> {
+    override operator fun invoke(input: CharSequence): Either<Exception, UrnWithFragment> {
+      TODO("Not yet implemented")
+    }
+  }
+}
+
+data class AbsoluteUrn(
+  override val scheme: Scheme,
+  override val hierarchicalPart: HierarchicalPartWithoutAuthority,
+  override val query: Query?,
+) : Urn, AbsoluteUri {
+  override val authority: Nothing? get() = null
+  override val path: PathAbEmpty get() = hierarchicalPart.path
+  override val fragment: Nothing? get() = null
+
+  companion object : CharSequenceParser<Exception, AbsoluteUrn> {
+    override operator fun invoke(input: CharSequence): Either<Exception, AbsoluteUrn> {
       TODO("Not yet implemented")
     }
   }

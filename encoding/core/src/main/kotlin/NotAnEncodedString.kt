@@ -3,7 +3,7 @@ abstract class NotAnEncodedString protected constructor(
   message: String? = null,
   cause: Throwable? = null,
 ) : InvalidEncoding(
-  invalidEncoding,
-  message,
-  cause,
-)
+    invalidEncoding,
+    message,
+    cause,
+  )

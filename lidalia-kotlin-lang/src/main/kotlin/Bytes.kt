@@ -19,8 +19,12 @@ class Bytes private constructor(
   fun array(): ByteArray = bytes.copyOfRange(fromIndex, toIndex)
 
   @JvmOverloads
-  fun string(charset: Charset = UTF_8): String =
-    String(bytes, fromIndex, size, charset)
+  fun string(charset: Charset = UTF_8): String = String(
+    bytes = bytes,
+    offset = fromIndex,
+    length = size,
+    charset = charset
+  )
 
   fun inputStream(): InputStream = ByteArrayInputStream(bytes, fromIndex, size)
 
@@ -41,26 +45,24 @@ class Bytes private constructor(
 
   fun split(index: Int): Pair<Bytes, Bytes> = take(index) to drop(index)
 
-  fun detach(): Bytes =
-    if (bytes.size == size) {
-      this
-    } else {
-      unsafe(array())
-    }
+  fun detach(): Bytes = if (bytes.size == size) {
+    this
+  } else {
+    unsafe(array())
+  }
 
-  override fun subList(fromIndex: Int, toIndex: Int): Bytes =
-    when {
-      fromIndex == toIndex -> empty
-      fromIndex == 0 && toIndex == size -> this
-      else -> {
-        validate(fromIndex, toIndex)
-        Bytes(
-          bytes = bytes,
-          fromIndex = this.fromIndex + fromIndex,
-          toIndex = this.fromIndex + toIndex
-        )
-      }
+  override fun subList(fromIndex: Int, toIndex: Int): Bytes = when {
+    fromIndex == toIndex -> empty
+    fromIndex == 0 && toIndex == size -> this
+    else -> {
+      validate(fromIndex, toIndex)
+      Bytes(
+        bytes = bytes,
+        fromIndex = this.fromIndex + fromIndex,
+        toIndex = this.fromIndex + toIndex,
+      )
     }
+  }
 
   private fun validate(fromIndex: Int, toIndex: Int) {
     if (fromIndex < 0) {
@@ -97,17 +99,15 @@ class Bytes private constructor(
     }
 
     @JvmOverloads
-    operator fun invoke(
-      text: String,
-      charset: Charset = UTF_8,
-    ): Bytes = unsafe(text.toByteArray(charset))
+    operator fun invoke(text: String, charset: Charset = UTF_8): Bytes =
+      unsafe(text.toByteArray(charset))
 
     operator fun invoke(bigInteger: BigInteger): Bytes = unsafe(bigInteger.toByteArray())
 
     operator fun invoke(b: Byte): Bytes = unsafe(byteArrayOf(b))
 
     operator fun invoke(integer: Int): Bytes = unsafe(
-      ByteBuffer.allocate(4).putInt(integer).array()
+      ByteBuffer.allocate(4).putInt(integer).array(),
     )
 
     val empty = unsafe(ByteArray(0))

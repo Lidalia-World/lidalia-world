@@ -6,8 +6,6 @@ interface ByteEncoder<T : Encoded<Bytes, String>> : Encoder<Bytes, String, T> {
 
   fun encode(decoded: ByteArray): T = encode(Bytes(decoded))
 
-  fun encode(
-    decoded: String,
-    charset: Charset = StandardCharsets.UTF_8,
-  ): T = encode(Bytes(decoded, charset))
+  fun encode(decoded: String, charset: Charset = StandardCharsets.UTF_8): T =
+    encode(Bytes(decoded, charset))
 }

@@ -13,8 +13,27 @@ class ParseInvariantsSpec : StringSpec(
   {
 
     val testCases = listOf(
+      "g:" to AbsoluteUri::class,
+      "g:foo:bar" to AbsoluteUri::class,
+
+      "g:b/foo" to AbsoluteUri::class,
+      "g:b:c/foo" to AbsoluteUri::class,
+
+      "g:b/foo" to PathRootless::class,
+
+      "g/foo:bar" to PathNoScheme::class,
+
       "https://example.com/foo" to AbsoluteUrl::class,
-      "https://example.com/foo#f" to Url::class,
+      "https://example.com/foo?" to AbsoluteUrl::class,
+      "https://example.com/foo?a" to AbsoluteUrl::class,
+
+      "https://example.com/foo#" to UrlWithFragment::class,
+      "https://example.com/foo#f" to UrlWithFragment::class,
+      "https://example.com/foo?#" to UrlWithFragment::class,
+      "https://example.com/foo?a#" to UrlWithFragment::class,
+      "https://example.com/foo?#f" to UrlWithFragment::class,
+      "https://example.com/foo?a#f" to UrlWithFragment::class,
+
       "//example.com/foo#f" to RelativePartWithAuthority::class,
       "/foo#f" to RelativePart::class,
       "" to PathEmpty::class,
@@ -39,15 +58,23 @@ class ParseInvariantsSpec : StringSpec(
   },
 )
 
+@Suppress("UNCHECKED_CAST")
 private val <T : Any> KClass<T>.parser get() =
   (companionObjectInstance ?: objectInstance) as CharSequenceParser<Exception, T>?
 
-fun List<Pair<String, KClass<out Any>>>.toParseTestCases() = map { ParseTestCase(it.first, it.second) }
-fun List<Pair<String, KClass<out Any>>>.toUnambiguousParseTestCases() = flatMap { (stringForm, expectedType) ->
-  expectedType.allSuperclasses.mapNotNull { superClass ->
-      superClass.parser?.let { parser -> UnambiguousParseTestCase(stringForm, expectedType, parser)  }
-  }
+fun List<Pair<String, KClass<out Any>>>.toParseTestCases() = map {
+  ParseTestCase(it.first, it.second)
 }
+
+fun List<Pair<String, KClass<out Any>>>.toUnambiguousParseTestCases() =
+  flatMap { (stringForm, expectedType) ->
+    expectedType.allSuperclasses.mapNotNull { superClass ->
+      superClass.parser?.let {
+          parser ->
+        UnambiguousParseTestCase(stringForm, expectedType, parser)
+      }
+    }
+  }
 
 data class ParseTestCase(
   val stringForm: String,

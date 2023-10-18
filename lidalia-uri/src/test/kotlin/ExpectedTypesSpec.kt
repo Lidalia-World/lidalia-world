@@ -12,14 +12,19 @@ import kotlin.reflect.KClass
 val uriReferenceSubTypes = setOf(
   RelativeRef::class,
   Uri::class,
-  AbsoluteUri::class,
+  Urn::class,
+  UriWithFragment::class,
   Url::class,
+  AbsoluteUri::class,
+  AbsoluteUrn::class,
+  UrnWithFragment::class,
+  UrlWithFragment::class,
   AbsoluteUrl::class,
-  UrlReferenceWithAuthority::class,
 )
 
 val hierarchicalPartSubTypes = setOf(
   HierarchicalPartWithAuthority::class,
+  HierarchicalPartWithoutAuthority::class,
 )
 
 val hierarchicalPartPathSubTypes = setOf(
@@ -58,8 +63,12 @@ val hierarchicalOrRelativePartWithAuthoritySubTypes = setOf(
 val hierarchicalOrRelativePartSubTypes =
   setOf(
     HierarchicalOrRelativePartWithAuthority::class,
-    HierarchicalPart::class,
+    HierarchicalOrRelativePartWithoutAuthority::class,
     RelativePart::class,
+    HierarchicalPart::class,
+    HierarchicalPartWithAuthority::class,
+    RelativePartWithAuthority::class,
+    HierarchicalPartWithoutAuthority::class,
   ) +
     hierarchicalPartSubTypes +
     relativePartSubTypes
@@ -77,7 +86,7 @@ class ExpectedTypesSpec : StringSpec({
     subTypesOf<Path>(pathSubTypes),
     subTypesOf<HierarchicalOrRelativePart>(hierarchicalOrRelativePartSubTypes),
     subTypesOf<HierarchicalOrRelativePartWithAuthority>(
-      hierarchicalOrRelativePartWithAuthoritySubTypes
+      hierarchicalOrRelativePartWithAuthoritySubTypes,
     ),
   ) { (parentType, subTypes) ->
     reflections.getSubTypesOf(parentType) shouldBe subTypes
@@ -88,11 +97,9 @@ class ExpectedTypesSpec : StringSpec({
   }
 })
 
-private inline fun <reified T : Any> subTypesOf(
-  subTypes: Set<KClass<out T>>,
-) = SubTypesTestCase(
+private inline fun <reified T : Any> subTypesOf(subTypes: Set<KClass<out T>>) = SubTypesTestCase(
   T::class,
-  subTypes
+  subTypes,
 )
 
 data class SubTypesTestCase<T : Any>(
