@@ -47,6 +47,6 @@ kotlinter-gradle-plugin = { module = "org.jmailen.kotlinter:org.jmailen.kotlinte
 reflections = { module = "org.reflections:reflections", version = "0.10.2" }
 
 [plugins]
-dependency-analysis = { id = "com.autonomousapps.dependency-analysis",  version = "1.25.0" }
+dependency-analysis = { id = "com.autonomousapps.dependency-analysis",  version = "1.26.0" }
 task-tree = { id = "com.dorongold.task-tree",  version = "2.1.1" }
 versions = { id = "com.github.ben-manes.versions",  version = "0.49.0" }

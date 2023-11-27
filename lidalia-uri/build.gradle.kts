@@ -4,7 +4,8 @@ plugins {
 
 dependencies {
 
-  implementation(projects.lidaliaKotlinLang)
+  api(libs.arrow.core)
+  api(projects.lidaliaKotlinLang)
 
   testImplementation(libs.reflections)
   testImplementation(libs.kotlin.reflect)
