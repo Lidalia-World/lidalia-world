@@ -23,7 +23,7 @@ class Bytes private constructor(
     bytes = bytes,
     offset = fromIndex,
     length = size,
-    charset = charset
+    charset = charset,
   )
 
   fun inputStream(): InputStream = ByteArrayInputStream(bytes, fromIndex, size)
