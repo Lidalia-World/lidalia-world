@@ -44,6 +44,13 @@ tasks.withType<DependencyUpdatesTask> {
   }
 }
 
+val rootBuildDir = layout.buildDirectory
+
+subprojects {
+  val relativeProjectPath = rootProject.projectDir.toPath().relativize(this.projectDir.toPath())
+  layout.buildDirectory = rootProject.file("${rootBuildDir.get()}/child-projects/$relativeProjectPath")
+}
+
 fun String.isPreRelease(): Boolean = try {
   Version.fromString(this).preReleaseIdentifiers.isNotEmpty()
 } catch (e: IllegalArgumentException) {
