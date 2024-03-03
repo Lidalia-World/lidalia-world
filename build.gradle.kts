@@ -5,8 +5,8 @@ plugins {
   base
   kotlin("jvm") apply false
   id("org.jmailen.kotlinter")
-  alias(libs.plugins.dependency.analysis)
-  alias(libs.plugins.task.tree)
+  alias(libs.plugins.dependencyAnalysis)
+  alias(libs.plugins.taskTree)
   alias(libs.plugins.versions)
 }
 

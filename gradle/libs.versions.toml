@@ -1,5 +1,5 @@
 [versions]
-kotlin = "1.9.10"
+kotlin = "1.9.22"
 
 [libraries]
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
@@ -47,6 +47,8 @@ kotlinter-gradle-plugin = { module = "org.jmailen.kotlinter:org.jmailen.kotlinte
 reflections = { module = "org.reflections:reflections", version = "0.10.2" }
 
 [plugins]
-dependency-analysis = { id = "com.autonomousapps.dependency-analysis",  version = "1.26.0" }
-task-tree = { id = "com.dorongold.task-tree",  version = "2.1.1" }
-versions = { id = "com.github.ben-manes.versions",  version = "0.50.0" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+dependencyAnalysis = { id = "com.autonomousapps.dependency-analysis", version = "1.29.0" }
+kotlinter = { id = "org.jmailen.kotlinter", version = "4.2.0" }
+taskTree = { id = "com.dorongold.task-tree", version = "2.1.1" }
+versions = { id = "com.github.ben-manes.versions", version = "0.50.0" }
