@@ -4,7 +4,7 @@ kotlin = "1.9.22"
 [libraries]
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
 
-arrow-stack = { module = "io.arrow-kt:arrow-stack", version = "1.2.1" }
+arrow-stack = { module = "io.arrow-kt:arrow-stack", version = "1.2.3" }
 arrow-annotations = { module = "io.arrow-kt:arrow-annotations" }
 arrow-continuations = { module = "io.arrow-kt:arrow-continuations" }
 arrow-atomic = { module = "io.arrow-kt:arrow-atomic" }
