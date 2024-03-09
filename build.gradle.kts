@@ -1,5 +1,6 @@
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import com.github.gundy.semver4j.model.Version
+import java.nio.file.Path
 
 plugins {
   base
@@ -44,11 +45,11 @@ tasks.withType<DependencyUpdatesTask> {
   }
 }
 
-val rootBuildDir = layout.buildDirectory
-
 subprojects {
-  val relativeProjectPath = rootProject.projectDir.toPath().relativize(this.projectDir.toPath())
-  layout.buildDirectory = rootProject.file("${rootBuildDir.get()}/child-projects/$relativeProjectPath")
+  val relativeProjectPath: Path = rootProject.projectDir.toPath().relativize(projectDir.toPath())
+  layout.buildDirectory = rootProject.layout.buildDirectory.get()
+    .dir("child-projects")
+    .dir(relativeProjectPath.toString())
 }
 
 fun String.isPreRelease(): Boolean = try {
