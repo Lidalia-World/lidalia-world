@@ -21,3 +21,6 @@
 # Docker
 Dockerfile
 .dockerignore
+
+# build script
+/build.sh
