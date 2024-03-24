@@ -15,7 +15,9 @@ import uk.org.lidalia.uri.api.Host
 import uk.org.lidalia.uri.api.IpLiteral
 import uk.org.lidalia.uri.api.Ipv4Address
 import uk.org.lidalia.uri.api.PathAbEmpty
+import uk.org.lidalia.uri.api.PathAbsolute
 import uk.org.lidalia.uri.api.PathEmpty
+import uk.org.lidalia.uri.api.PathRootless
 import uk.org.lidalia.uri.api.Port
 import uk.org.lidalia.uri.api.Query
 import uk.org.lidalia.uri.api.RegisteredName
@@ -91,13 +93,15 @@ internal value class BasicPort(private val value: Int) : Port {
 }
 
 @JvmInline
-internal value class BasicSegmentNonEmpty(private val value: String) : SegmentNonEmpty {
+internal value class BasicSegmentNonEmpty(
+  private val value: String,
+) : SegmentNonEmpty, CharSequence by value {
   override fun toString() = value
 }
 
 internal object BasicPathEmpty : PathEmpty {
   override val authority: Nothing? = null
-  override val path: RelativePartPath = this
+  override val path: PathEmpty = this
   override val hierarchicalPart: RelativePart = this
   override val query: Nothing? = null
   override val fragment: Nothing? = null
@@ -108,7 +112,14 @@ internal object BasicPathEmpty : PathEmpty {
   override fun toString(): String = ""
 }
 
-internal object BasicSegmentEmpty : SegmentEmpty {
+internal object BasicSegmentEmpty : SegmentEmpty, CharSequence {
+  override val length: Int = 0
+
+  override fun get(index: Int): Char = throw IndexOutOfBoundsException()
+
+  override fun subSequence(startIndex: Int, endIndex: Int): CharSequence =
+    throw IndexOutOfBoundsException()
+
   override fun toString(): String = ""
 }
 
@@ -172,7 +183,7 @@ internal data class BasicUrn(
   override val fragment: Fragment?,
 ) : Urn {
   override val authority: Nothing? = null
-  override val path: PathAbEmpty = hierarchicalPart.path
+  override val path: HierarchicalPartWithoutAuthority = hierarchicalPart.path
 
   companion object : CharSequenceParser<Exception, Urn> {
     override operator fun invoke(input: CharSequence): Either<Exception, Urn> =
@@ -186,24 +197,20 @@ internal data class BasicAbsoluteUrn(
   override val query: Query?,
 ) : AbsoluteUrn {
   override val authority: Nothing? = null
-  override val path: PathAbEmpty = hierarchicalPart.path
+  override val path: HierarchicalPartWithoutAuthority = hierarchicalPart.path
   override val fragment: Nothing? = null
+
+  override fun toString(): String = "$scheme:$hierarchicalPart".append(query)
 
   companion object : CharSequenceParser<Exception, AbsoluteUrn> {
     override operator fun invoke(input: CharSequence) = castOrFail(input) { it as? AbsoluteUrn }
   }
 }
 
-private fun <T : UriReference> castOrFail(
+fun <T : UriReference> castOrFail(
   input: CharSequence,
   f: (UriReference) -> T?,
 ): Either<Exception, T> = UriReference(input).flatMap { f(it)?.right() ?: Exception().left() }
-
-internal data class BaseHierarchicalPartWithoutAuthority(
-  override val path: PathAbEmpty,
-) : HierarchicalPartWithoutAuthority {
-  override val authority: Nothing? = null
-}
 
 internal data class BaseHierarchicalPartWithAuthority(
   override val authority: Authority,
@@ -222,3 +229,24 @@ internal data class BasicAuthority(
 
 private val UserInfo?.inAuthority get() = if (this == null) "" else "$this@"
 private val Port?.inAuthority get() = if (this == null) "" else ":$this"
+
+internal data class BasicPathAbsolute(
+  override val segments: List<Segment>,
+) : PathAbsolute {
+  override val hierarchicalPart: PathAbsolute = this
+  override val query: Nothing? = null
+  override val fragment: Nothing? = null
+  override val firstSegment: SegmentEmpty = segments.first() as SegmentEmpty
+  override val secondSegment: SegmentNonEmpty? = segments.elementAtOrNull(1) as SegmentNonEmpty?
+
+  override fun toString(): String = segments.joinToString("/")
+}
+
+internal data class BasicPathRootless(
+  override val segments: List<Segment>,
+) : PathRootless {
+  override val firstSegment: SegmentNonEmpty = segments.first() as SegmentNonEmpty
+  override val secondSegment: Segment? = segments.elementAtOrNull(1)
+
+  override fun toString(): String = segments.joinToString("/")
+}

@@ -21,29 +21,29 @@ class ParseInvariantsSpec : StringSpec(
   {
 
     val testCases = listOf(
-      "g:" to BasicAbsoluteUrn::class,
-      "g:foo:bar" to BasicAbsoluteUrn::class,
+      "s:" to BasicAbsoluteUrn::class,
+      "s:foo:bar" to BasicAbsoluteUrn::class,
 
-      "g:b/foo" to BasicAbsoluteUrn::class,
-      "g:b:c/foo" to BasicAbsoluteUrn::class,
+      "s:b/foo" to BasicAbsoluteUrn::class,
+      "s:b:c/foo" to BasicAbsoluteUrn::class,
 
-      "g:b/foo" to PathRootless::class,
+      "p1:p2/p3" to PathRootless::class,
 
-      "g/foo:bar" to PathNoScheme::class,
+      "p1/p2:p3" to PathNoScheme::class,
 
-      "https://example.com/foo" to BasicAbsoluteUrl::class,
-      "https://example.com/foo?" to BasicAbsoluteUrl::class,
-      "https://example.com/foo?a" to BasicAbsoluteUrl::class,
+      "s://h/p2" to BasicAbsoluteUrl::class,
+      "s://h/p2?" to BasicAbsoluteUrl::class,
+      "s://h/p2?q" to BasicAbsoluteUrl::class,
 
-      "https://example.com/foo#" to BasicUrl::class,
-      "https://example.com/foo#f" to BasicUrl::class,
-      "https://example.com/foo?#" to BasicUrl::class,
-      "https://example.com/foo?a#" to BasicUrl::class,
-      "https://example.com/foo?#f" to BasicUrl::class,
-      "https://example.com/foo?a#f" to BasicUrl::class,
+      "s://h/p2#" to BasicUrl::class,
+      "s://h/p2#f" to BasicUrl::class,
+      "s://h/p2?#" to BasicUrl::class,
+      "s://h/p2?q#" to BasicUrl::class,
+      "s://h/p2?#f" to BasicUrl::class,
+      "s://h/p2?q#f" to BasicUrl::class,
 
-      "//example.com/foo#f" to RelativePartWithAuthority::class,
-      "/foo#f" to RelativePart::class,
+      "//h/p2#f" to RelativePartWithAuthority::class,
+      "/p2#f" to RelativePart::class,
       "" to BasicPathEmpty::class,
     )
 
