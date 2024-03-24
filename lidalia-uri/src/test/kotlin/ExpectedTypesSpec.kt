@@ -1,4 +1,4 @@
-package uk.org.lidalia.uri
+package uk.org.lidalia.uri.api
 
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.datatest.WithDataTestName
@@ -13,13 +13,11 @@ val uriReferenceSubTypes = setOf(
   RelativeRef::class,
   Uri::class,
   Urn::class,
-  UriWithFragment::class,
   Url::class,
-  AbsoluteUri::class,
   AbsoluteUrn::class,
-  UrnWithFragment::class,
-  UrlWithFragment::class,
   AbsoluteUrl::class,
+  RelativePart::class,
+  RelativePartWithAuthority::class,
 )
 
 val hierarchicalPartSubTypes = setOf(
@@ -111,4 +109,7 @@ data class SubTypesTestCase<T : Any>(
 }
 
 private fun <T : Any> Reflections.getSubTypesOf(kClass: KClass<T>): Set<KClass<out T>> =
-  getSubTypesOf(kClass.java).map { it.kotlin }.toSet()
+  getSubTypesOf(kClass.java)
+    .map { it.kotlin }
+    .filter { it.qualifiedName?.startsWith("uk.org.lidalia.uri.api.") == true }
+    .toSet()

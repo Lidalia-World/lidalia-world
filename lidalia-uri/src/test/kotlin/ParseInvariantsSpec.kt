@@ -5,6 +5,14 @@ import io.kotest.core.spec.style.StringSpec
 import io.kotest.datatest.withData
 import io.kotest.matchers.shouldBe
 import uk.org.lidalia.lang.CharSequenceParser
+import uk.org.lidalia.uri.api.PathNoScheme
+import uk.org.lidalia.uri.api.PathRootless
+import uk.org.lidalia.uri.api.RelativePart
+import uk.org.lidalia.uri.api.RelativePartWithAuthority
+import uk.org.lidalia.uri.implementation.BasicAbsoluteUrl
+import uk.org.lidalia.uri.implementation.BasicAbsoluteUrn
+import uk.org.lidalia.uri.implementation.BasicPathEmpty
+import uk.org.lidalia.uri.implementation.BasicUrl
 import kotlin.reflect.KClass
 import kotlin.reflect.full.allSuperclasses
 import kotlin.reflect.full.companionObjectInstance
@@ -13,37 +21,38 @@ class ParseInvariantsSpec : StringSpec(
   {
 
     val testCases = listOf(
-      "g:" to AbsoluteUri::class,
-      "g:foo:bar" to AbsoluteUri::class,
+      "g:" to BasicAbsoluteUrn::class,
+      "g:foo:bar" to BasicAbsoluteUrn::class,
 
-      "g:b/foo" to AbsoluteUri::class,
-      "g:b:c/foo" to AbsoluteUri::class,
+      "g:b/foo" to BasicAbsoluteUrn::class,
+      "g:b:c/foo" to BasicAbsoluteUrn::class,
 
       "g:b/foo" to PathRootless::class,
 
       "g/foo:bar" to PathNoScheme::class,
 
-      "https://example.com/foo" to AbsoluteUrl::class,
-      "https://example.com/foo?" to AbsoluteUrl::class,
-      "https://example.com/foo?a" to AbsoluteUrl::class,
+      "https://example.com/foo" to BasicAbsoluteUrl::class,
+      "https://example.com/foo?" to BasicAbsoluteUrl::class,
+      "https://example.com/foo?a" to BasicAbsoluteUrl::class,
 
-      "https://example.com/foo#" to UrlWithFragment::class,
-      "https://example.com/foo#f" to UrlWithFragment::class,
-      "https://example.com/foo?#" to UrlWithFragment::class,
-      "https://example.com/foo?a#" to UrlWithFragment::class,
-      "https://example.com/foo?#f" to UrlWithFragment::class,
-      "https://example.com/foo?a#f" to UrlWithFragment::class,
+      "https://example.com/foo#" to BasicUrl::class,
+      "https://example.com/foo#f" to BasicUrl::class,
+      "https://example.com/foo?#" to BasicUrl::class,
+      "https://example.com/foo?a#" to BasicUrl::class,
+      "https://example.com/foo?#f" to BasicUrl::class,
+      "https://example.com/foo?a#f" to BasicUrl::class,
 
       "//example.com/foo#f" to RelativePartWithAuthority::class,
       "/foo#f" to RelativePart::class,
-      "" to PathEmpty::class,
+      "" to BasicPathEmpty::class,
     )
 
     withData<ParseTestCase>(
       { t -> "[${t.stringForm}] can be parsed to ${t.expectedType.simpleName} symmetrically" },
       testCases.toParseTestCases(),
     ) { (stringForm, expectedType) ->
-      val parsed = expectedType.parser!!(stringForm).getOrElse { throw it }
+      val parser = expectedType.parser ?: throw AssertionError("No parser for $expectedType")
+      val parsed = parser(stringForm).getOrElse { throw it }
       parsed::class shouldBe expectedType
       parsed.toString() shouldBe stringForm
     }
@@ -69,12 +78,14 @@ fun List<Pair<String, KClass<out Any>>>.toParseTestCases() = map {
 fun List<Pair<String, KClass<out Any>>>.toUnambiguousParseTestCases() =
   flatMap { (stringForm, expectedType) ->
     expectedType.allSuperclasses.mapNotNull { superClass ->
-      superClass.parser?.let {
-          parser ->
-        UnambiguousParseTestCase(stringForm, expectedType, parser)
-      }
+      superClass.parser?.unambiguousParseTestCase(stringForm, expectedType)
     }
   }
+
+private fun CharSequenceParser<Exception, Any>.unambiguousParseTestCase(
+  stringForm: String,
+  expectedType: KClass<out Any>,
+) = UnambiguousParseTestCase(stringForm, expectedType, this)
 
 data class ParseTestCase(
   val stringForm: String,
