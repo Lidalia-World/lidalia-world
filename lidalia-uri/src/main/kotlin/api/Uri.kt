@@ -193,6 +193,13 @@ interface RelativeRef : UriReference {
   override val fragment: Fragment?
 }
 
+interface PathAndQuery : RelativeRef {
+  override val hierarchicalPart: PathAbsolute
+  override val authority: Nothing? get() = null
+  override val path: PathAbsolute
+  override val fragment: Nothing? get() = null
+}
+
 interface ListNonEmpty<out E> : List<E>
 
 interface Scheme : CharSequence {
