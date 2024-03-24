@@ -10,11 +10,11 @@ import uk.org.lidalia.uri.api.Authority.Companion.extractAuthority
 import uk.org.lidalia.uri.api.HierarchicalPart.Companion.extractHierarchicalPart
 import uk.org.lidalia.uri.api.Host.Companion.extractHost
 import uk.org.lidalia.uri.api.RelativePart.Companion.extractRelativePart
-import uk.org.lidalia.uri.implementation.BaseHierarchicalPartWithAuthority
 import uk.org.lidalia.uri.implementation.BasicAbsoluteUrl
 import uk.org.lidalia.uri.implementation.BasicAbsoluteUrn
 import uk.org.lidalia.uri.implementation.BasicAuthority
 import uk.org.lidalia.uri.implementation.BasicFragment
+import uk.org.lidalia.uri.implementation.BasicHierarchicalPartWithAuthority
 import uk.org.lidalia.uri.implementation.BasicIpLiteral
 import uk.org.lidalia.uri.implementation.BasicIpv4Address
 import uk.org.lidalia.uri.implementation.BasicPathAbEmpty
@@ -132,7 +132,7 @@ sealed interface HierarchicalPart : HierarchicalOrRelativePart {
       return if (authority == null) {
         groups["path"]!!.value.toHierarchicalPartWithoutAuthority()
       } else {
-        BaseHierarchicalPartWithAuthority(authority, groups["path"]!!.value.toPathAbEmpty())
+        BasicHierarchicalPartWithAuthority(authority, groups["path"]!!.value.toPathAbEmpty())
       }
     }
   }
@@ -190,14 +190,6 @@ sealed interface HierarchicalPartWithoutAuthority :
 sealed interface HierarchicalOrRelativePartWithAuthority : HierarchicalOrRelativePart {
   override val authority: Authority
   override val path: PathAbEmpty
-
-  companion object : CharSequenceParser<Exception, HierarchicalOrRelativePartWithAuthority> {
-    override operator fun invoke(
-      input: CharSequence,
-    ): Either<Exception, HierarchicalOrRelativePartWithAuthority> {
-      TODO("Not yet implemented")
-    }
-  }
 }
 
 sealed interface HierarchicalOrRelativePartWithoutAuthority : HierarchicalOrRelativePart {
@@ -323,7 +315,6 @@ interface PathAbEmpty : RelativePartPath, HierarchicalPartPath {
 interface PathAbsolute :
   RelativePartPath,
   HierarchicalPartPath,
-  RelativePart,
   HierarchicalPartWithoutAuthority,
   RelativePartWithoutAuthority {
   override val segments: List<Segment>
@@ -333,7 +324,7 @@ interface PathAbsolute :
   override val path: PathAbsolute get() = this
 }
 
-interface PathNoScheme : RelativePartPath, RelativePart, RelativePartWithoutAuthority {
+interface PathNoScheme : RelativePartPath, RelativePartWithoutAuthority {
   override val segments: List<Segment>
   override val firstSegment: SegmentNonEmptyNoColon
   override val secondSegment: Segment?
@@ -348,7 +339,6 @@ interface PathRootless : HierarchicalPartPath, HierarchicalPartWithoutAuthority 
 
 interface PathEmpty :
   PathAbEmpty,
-  RelativePart,
   HierarchicalPartWithoutAuthority,
   RelativePartWithoutAuthority {
   override val segments: List<Segment> get() = emptyList()

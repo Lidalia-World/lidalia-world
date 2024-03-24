@@ -154,11 +154,6 @@ private fun String.append(query: Query?): String = if (query == null) this else 
 private fun String.append(fragment: Fragment?): String =
   if (fragment == null) this else "$this#$fragment"
 
-internal data class BasicHierarchicalPartWithAuthority(
-  override val authority: Authority,
-  override val path: PathAbEmpty,
-) : HierarchicalPartWithAuthority
-
 internal data class BasicUrl(
   override val scheme: Scheme,
   override val hierarchicalPart: HierarchicalPartWithAuthority,
@@ -212,7 +207,7 @@ fun <T : UriReference> castOrFail(
   f: (UriReference) -> T?,
 ): Either<Exception, T> = UriReference(input).flatMap { f(it)?.right() ?: Exception().left() }
 
-internal data class BaseHierarchicalPartWithAuthority(
+internal data class BasicHierarchicalPartWithAuthority(
   override val authority: Authority,
   override val path: PathAbEmpty,
 ) : HierarchicalPartWithAuthority {

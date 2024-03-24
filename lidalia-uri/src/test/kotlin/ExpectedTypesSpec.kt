@@ -10,30 +10,43 @@ import org.reflections.Reflections
 import kotlin.reflect.KClass
 
 val uriReferenceSubTypes = setOf(
-  RelativeRef::class,
   Uri::class,
-  Urn::class,
+  RelativeRef::class,
   Url::class,
-  AbsoluteUrn::class,
-  AbsoluteUrl::class,
+  Urn::class,
   RelativePart::class,
+  PathAndQuery::class,
+  AbsoluteUrl::class,
+  AbsoluteUrn::class,
   RelativePartWithAuthority::class,
+  RelativePartWithoutAuthority::class,
+  PathEmpty::class,
+  PathAbsolute::class,
+  PathNoScheme::class,
 )
 
 val hierarchicalPartSubTypes = setOf(
   HierarchicalPartWithAuthority::class,
   HierarchicalPartWithoutAuthority::class,
-)
-
-val hierarchicalPartPathSubTypes = setOf(
-  PathAbEmpty::class,
   PathEmpty::class,
   PathAbsolute::class,
   PathRootless::class,
 )
 
+val hierarchicalPartPathSubTypes = setOf(
+  HierarchicalPartWithoutAuthority::class,
+  PathAbsolute::class,
+  PathAbEmpty::class,
+  PathRootless::class,
+  PathEmpty::class,
+)
+
 val relativePartSubTypes = setOf(
   RelativePartWithAuthority::class,
+  RelativePartWithoutAuthority::class,
+  PathEmpty::class,
+  PathAbsolute::class,
+  PathNoScheme::class,
 )
 
 val relativePartPathSubTypes = setOf(
@@ -46,11 +59,12 @@ val relativePartPathSubTypes = setOf(
 val pathSubTypes = setOf(
   RelativePartPath::class,
   HierarchicalPartPath::class,
-  PathAbEmpty::class,
-  PathEmpty::class,
   PathAbsolute::class,
+  PathAbEmpty::class,
   PathNoScheme::class,
+  HierarchicalPartWithoutAuthority::class,
   PathRootless::class,
+  PathEmpty::class,
 )
 
 val hierarchicalOrRelativePartWithAuthoritySubTypes = setOf(
