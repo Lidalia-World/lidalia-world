@@ -17,17 +17,20 @@ import uk.org.lidalia.uri.api.Ipv4Address
 import uk.org.lidalia.uri.api.PathAbEmpty
 import uk.org.lidalia.uri.api.PathAbsolute
 import uk.org.lidalia.uri.api.PathEmpty
+import uk.org.lidalia.uri.api.PathNoScheme
 import uk.org.lidalia.uri.api.PathRootless
 import uk.org.lidalia.uri.api.Port
 import uk.org.lidalia.uri.api.Query
 import uk.org.lidalia.uri.api.RegisteredName
 import uk.org.lidalia.uri.api.RelativePart
 import uk.org.lidalia.uri.api.RelativePartPath
+import uk.org.lidalia.uri.api.RelativePartWithAuthority
 import uk.org.lidalia.uri.api.RelativeRef
 import uk.org.lidalia.uri.api.Scheme
 import uk.org.lidalia.uri.api.Segment
 import uk.org.lidalia.uri.api.SegmentEmpty
 import uk.org.lidalia.uri.api.SegmentNonEmpty
+import uk.org.lidalia.uri.api.SegmentNonEmptyNoColon
 import uk.org.lidalia.uri.api.UriReference
 import uk.org.lidalia.uri.api.Url
 import uk.org.lidalia.uri.api.Urn
@@ -42,6 +45,8 @@ internal data class BasicRelativeRef(
   override val scheme: Nothing? = null
   override val authority: Authority? = hierarchicalPart.authority
   override val path: RelativePartPath = hierarchicalPart.path
+
+  override fun toString(): String = hierarchicalPart.toString().append(query).append(fragment)
 
   companion object : CharSequenceParser<Exception, RelativeRef> {
     override operator fun invoke(input: CharSequence) = castOrFail(input) { it as? RelativeRef }
@@ -102,7 +107,7 @@ internal value class BasicSegmentNonEmpty(
 internal object BasicPathEmpty : PathEmpty {
   override val authority: Nothing? = null
   override val path: PathEmpty = this
-  override val hierarchicalPart: RelativePart = this
+  override val hierarchicalPart: PathEmpty = this
   override val query: Nothing? = null
   override val fragment: Nothing? = null
   override val segments: List<Segment> = emptyList()
@@ -205,7 +210,10 @@ internal data class BasicAbsoluteUrn(
 fun <T : UriReference> castOrFail(
   input: CharSequence,
   f: (UriReference) -> T?,
-): Either<Exception, T> = UriReference(input).flatMap { f(it)?.right() ?: Exception().left() }
+): Either<Exception, T> = UriReference(input)
+  .flatMap {
+    f(it)?.right() ?: Exception("$it is of unexpected type ${it::class}").left()
+  }
 
 internal data class BasicHierarchicalPartWithAuthority(
   override val authority: Authority,
@@ -244,4 +252,28 @@ internal data class BasicPathRootless(
   override val secondSegment: Segment? = segments.elementAtOrNull(1)
 
   override fun toString(): String = segments.joinToString("/")
+}
+
+internal data class BasicPathNoScheme(
+  override val segments: List<Segment>,
+) : PathNoScheme {
+  override val firstSegment: SegmentNonEmptyNoColon = segments.first() as SegmentNonEmptyNoColon
+  override val secondSegment: Segment? = segments.elementAtOrNull(1)
+
+  override fun toString(): String = segments.joinToString("/")
+
+  override val path: PathNoScheme = this
+  override val hierarchicalPart: PathNoScheme = this
+  override val query: Nothing? = null
+  override val fragment: Nothing? = null
+}
+
+internal data class BasicRelativePartWithAuthority(
+  override val authority: Authority,
+  override val path: PathAbEmpty,
+) : RelativePartWithAuthority {
+  override val query: Nothing? = null
+  override val fragment: Nothing? = null
+
+  override fun toString(): String = "//$authority$path"
 }

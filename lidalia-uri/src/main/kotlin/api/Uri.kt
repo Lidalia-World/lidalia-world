@@ -20,10 +20,12 @@ import uk.org.lidalia.uri.implementation.BasicIpv4Address
 import uk.org.lidalia.uri.implementation.BasicPathAbEmpty
 import uk.org.lidalia.uri.implementation.BasicPathAbsolute
 import uk.org.lidalia.uri.implementation.BasicPathEmpty
+import uk.org.lidalia.uri.implementation.BasicPathNoScheme
 import uk.org.lidalia.uri.implementation.BasicPathRootless
 import uk.org.lidalia.uri.implementation.BasicPort
 import uk.org.lidalia.uri.implementation.BasicQuery
 import uk.org.lidalia.uri.implementation.BasicRegisteredName
+import uk.org.lidalia.uri.implementation.BasicRelativePartWithAuthority
 import uk.org.lidalia.uri.implementation.BasicRelativeRef
 import uk.org.lidalia.uri.implementation.BasicScheme
 import uk.org.lidalia.uri.implementation.BasicSegmentEmpty
@@ -81,7 +83,11 @@ sealed interface UriReference {
           }
         } else {
           val relativePart = result.extractRelativePart()
-          BasicRelativeRef(relativePart, query, fragment)
+          if (query != null || fragment != null) {
+            BasicRelativeRef(relativePart, query, fragment)
+          } else {
+            relativePart
+          }
         }.right()
       }
     }
@@ -170,6 +176,24 @@ fun String.toHierarchicalPartWithoutAuthority(): HierarchicalPartWithoutAuthorit
   }
 }
 
+fun String.toRelativePartWithoutAuthority(): RelativePartWithoutAuthority = if (isEmpty()) {
+  BasicPathEmpty
+} else {
+  val segments = split('/')
+    .map {
+      if (it.isEmpty()) {
+        BasicSegmentEmpty
+      } else {
+        BasicSegmentNonEmpty(it)
+      }
+    }
+  if (segments.first().isEmpty()) {
+    BasicPathAbsolute(segments)
+  } else {
+    BasicPathNoScheme(segments)
+  }
+}
+
 private fun List<Segment>.toPathAbEmpty() = BasicPathAbEmpty(this)
 
 interface HierarchicalPartWithAuthority :
@@ -203,6 +227,14 @@ interface RelativeRef : UriReference {
   override val path: RelativePartPath get() = hierarchicalPart.path
   override val query: Query?
   override val fragment: Fragment?
+
+  companion object : CharSequenceParser<Exception, RelativeRef> {
+    override operator fun invoke(input: CharSequence): Either<Exception, RelativeRef> =
+      UriReference(input).flatMap {
+          ref ->
+        (ref as? RelativeRef)?.right() ?: Exception().left()
+      }
+  }
 }
 
 interface PathAndQuery : RelativeRef {
@@ -381,7 +413,14 @@ sealed interface RelativePart : HierarchicalOrRelativePart, RelativeRef {
     override operator fun invoke(input: CharSequence): Either<Exception, RelativePart> =
       castOrFail(input) { it as? RelativePart }
 
-    fun MatchResult.extractRelativePart(): RelativePart = TODO()
+    fun MatchResult.extractRelativePart(): RelativePart {
+      val authority = extractAuthority()
+      return if (authority == null) {
+        groups["path"]!!.value.toRelativePartWithoutAuthority()
+      } else {
+        BasicRelativePartWithAuthority(authority, groups["path"]!!.value.toPathAbEmpty())
+      }
+    }
   }
 }
 
@@ -404,6 +443,7 @@ interface RelativePartWithoutAuthority : RelativePart, HierarchicalOrRelativePar
 interface RelativePartWithAuthority : RelativePart, HierarchicalOrRelativePartWithAuthority {
   override val authority: Authority
   override val path: PathAbEmpty
+  override val hierarchicalPart: RelativePartWithAuthority get() = this
 
   companion object : CharSequenceParser<Exception, RelativePartWithAuthority> {
     override operator fun invoke(
