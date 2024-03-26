@@ -230,8 +230,6 @@ private data class BasicRelativePartWithAuthority(
 private data class BasicHierarchicalPartWithoutAuthority(
   override val path: HierarchicalPartPath,
 ) : HierarchicalPartWithoutAuthority {
-  override val segments: List<Segment> = path.segments
-
   override fun toString(): String = path.toString()
 }
 

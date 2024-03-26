@@ -53,10 +53,9 @@ interface HierarchicalPartWithAuthority :
 
 interface HierarchicalPartWithoutAuthority :
   HierarchicalPart,
-  HierarchicalOrRelativePartWithoutAuthority,
-  HierarchicalPartPath {
+  HierarchicalOrRelativePartWithoutAuthority {
   override val authority: Nothing? get() = null
-  override val path: HierarchicalPartPath get() = this
+  override val path: HierarchicalPartPath
 }
 
 sealed interface HierarchicalOrRelativePartWithAuthority : HierarchicalOrRelativePart {
@@ -223,7 +222,7 @@ sealed interface RelativePartPath : Path {
   }
 }
 
-interface RelativePartWithoutAuthority : RelativePart, HierarchicalOrRelativePartWithoutAuthority {
+sealed interface RelativePartWithoutAuthority : RelativePart, HierarchicalOrRelativePartWithoutAuthority {
   override val authority: Nothing? get() = null
 
   companion object : CharSequenceParser<Exception, RelativePartWithoutAuthority> {
