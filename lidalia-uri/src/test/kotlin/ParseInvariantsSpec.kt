@@ -8,6 +8,7 @@ import io.kotest.matchers.shouldBe
 import uk.org.lidalia.lang.CharSequenceParser
 import uk.org.lidalia.uri.api.AbsoluteUrl
 import uk.org.lidalia.uri.api.AbsoluteUrn
+import uk.org.lidalia.uri.api.PathAbsolute
 import uk.org.lidalia.uri.api.PathEmpty
 import uk.org.lidalia.uri.api.PathNoScheme
 import uk.org.lidalia.uri.api.PathRootless
@@ -45,6 +46,8 @@ class ParseInvariantsSpec : StringSpec(
 
       "//h/p2#f" to RelativeRef::class,
       "/p2#f" to RelativeRef::class,
+
+      "/p2" to PathAbsolute::class,
       "" to PathEmpty::class,
     )
 
