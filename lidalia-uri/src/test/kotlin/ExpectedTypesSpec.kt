@@ -22,7 +22,9 @@ val uriReferenceSubTypes = setOf(
   RelativePartWithoutAuthority::class,
   PathEmpty::class,
   PathAbsolute::class,
+  RelativePartPath::class,
   PathNoScheme::class,
+  PathAbEmpty::class,
 )
 
 val hierarchicalPartSubTypes = setOf(
@@ -33,7 +35,7 @@ val hierarchicalPartSubTypes = setOf(
   PathRootless::class,
 )
 
-val hierarchicalPartPathSubTypes = setOf(
+val hierarchicalPartPathSubTypes: Set<KClass<out HierarchicalPartPath>> = setOf(
   HierarchicalPartWithoutAuthority::class,
   PathAbsolute::class,
   PathAbEmpty::class,
@@ -46,7 +48,9 @@ val relativePartSubTypes = setOf(
   RelativePartWithoutAuthority::class,
   PathEmpty::class,
   PathAbsolute::class,
+  RelativePartPath::class,
   PathNoScheme::class,
+  PathAbEmpty::class,
 )
 
 val relativePartPathSubTypes = setOf(

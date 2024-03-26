@@ -5,11 +5,11 @@ import io.kotest.core.spec.style.StringSpec
 import io.kotest.datatest.withData
 import io.kotest.matchers.shouldBe
 import uk.org.lidalia.lang.CharSequenceParser
-import uk.org.lidalia.uri.api.PathNoScheme
-import uk.org.lidalia.uri.api.PathRootless
 import uk.org.lidalia.uri.implementation.BasicAbsoluteUrl
 import uk.org.lidalia.uri.implementation.BasicAbsoluteUrn
 import uk.org.lidalia.uri.implementation.BasicPathEmpty
+import uk.org.lidalia.uri.implementation.BasicPathNoScheme
+import uk.org.lidalia.uri.implementation.BasicPathRootless
 import uk.org.lidalia.uri.implementation.BasicRelativeRef
 import uk.org.lidalia.uri.implementation.BasicUrl
 import kotlin.reflect.KClass
@@ -26,9 +26,9 @@ class ParseInvariantsSpec : StringSpec(
       "s:b/foo" to BasicAbsoluteUrn::class,
       "s:b:c/foo" to BasicAbsoluteUrn::class,
 
-      "p1:p2/p3" to PathRootless::class,
+      "p1:p2/p3" to BasicPathRootless::class,
 
-      "p1/p2:p3" to PathNoScheme::class,
+      "p1/p2:p3" to BasicPathNoScheme::class,
 
       "s://h/p2" to BasicAbsoluteUrl::class,
       "s://h/p2?" to BasicAbsoluteUrl::class,

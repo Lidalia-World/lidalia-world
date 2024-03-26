@@ -30,6 +30,7 @@ import uk.org.lidalia.uri.implementation.BasicRelativeRef
 import uk.org.lidalia.uri.implementation.BasicScheme
 import uk.org.lidalia.uri.implementation.BasicSegmentEmpty
 import uk.org.lidalia.uri.implementation.BasicSegmentNonEmpty
+import uk.org.lidalia.uri.implementation.BasicSegmentNonEmptyNoColon
 import uk.org.lidalia.uri.implementation.BasicUrl
 import uk.org.lidalia.uri.implementation.BasicUrn
 import uk.org.lidalia.uri.implementation.BasicUserInfo
@@ -117,9 +118,13 @@ sealed interface Uri : UriReference {
   }
 }
 
-sealed interface HierarchicalOrRelativePart {
-  val authority: Authority?
-  val path: Path
+sealed interface HierarchicalOrRelativePart : UriReference {
+  override val scheme: Nothing? get() = null
+  override val hierarchicalPart: HierarchicalOrRelativePart get() = this
+  override val query: Nothing? get() = null
+  override val fragment: Nothing? get() = null
+  override val authority: Authority?
+  override val path: Path
 }
 
 sealed interface HierarchicalPart : HierarchicalOrRelativePart {
@@ -128,10 +133,7 @@ sealed interface HierarchicalPart : HierarchicalOrRelativePart {
 
   companion object : CharSequenceParser<Exception, HierarchicalPart> {
     override operator fun invoke(input: CharSequence): Either<Exception, HierarchicalPart> =
-      UriReference(input).flatMap {
-          ref ->
-        (ref as? HierarchicalPart)?.right() ?: Exception().left()
-      }
+      UriReference.castOrFail(input) { it as? HierarchicalPart }
 
     fun MatchResult.extractHierarchicalPart(): HierarchicalPart {
       val authority = extractAuthority()
@@ -148,27 +150,23 @@ fun String.toPathAbEmpty(): PathAbEmpty = if (isEmpty()) {
   BasicPathEmpty
 } else {
   split('/')
-    .map {
-      if (it.isEmpty()) {
-        BasicSegmentEmpty
-      } else {
-        BasicSegmentNonEmpty(it)
-      }
-    }
+    .map(String::toSegment)
     .toPathAbEmpty()
+}
+
+private fun String.toSegment() = if (isEmpty()) {
+  BasicSegmentEmpty
+} else if (contains(":")) {
+  BasicSegmentNonEmpty(this)
+} else {
+  BasicSegmentNonEmptyNoColon(this)
 }
 
 fun String.toHierarchicalPartWithoutAuthority(): HierarchicalPartWithoutAuthority = if (isEmpty()) {
   BasicPathEmpty
 } else {
   val segments = split('/')
-    .map {
-      if (it.isEmpty()) {
-        BasicSegmentEmpty
-      } else {
-        BasicSegmentNonEmpty(it)
-      }
-    }
+    .map(String::toSegment)
   if (segments.first().isEmpty()) {
     BasicPathAbsolute(segments)
   } else {
@@ -180,13 +178,7 @@ fun String.toRelativePartWithoutAuthority(): RelativePartWithoutAuthority = if (
   BasicPathEmpty
 } else {
   val segments = split('/')
-    .map {
-      if (it.isEmpty()) {
-        BasicSegmentEmpty
-      } else {
-        BasicSegmentNonEmpty(it)
-      }
-    }
+    .map(String::toSegment)
   if (segments.first().isEmpty()) {
     BasicPathAbsolute(segments)
   } else {
@@ -326,8 +318,16 @@ sealed interface Path {
   companion object : CharSequenceParser<Exception, Path> {
     val regex = """[^#?]*""".toRegex()
 
-    override fun invoke(p1: CharSequence): Either<Exception, Path> {
-      TODO("Not yet implemented")
+    override fun invoke(input: CharSequence): Either<Exception, Path> {
+      val segments = input.split('/')
+        .map(String::toSegment)
+      return when {
+        input.isEmpty() -> BasicPathEmpty
+        input.startsWith("//") -> BasicPathAbEmpty(segments)
+        input.startsWith("/") -> BasicPathAbsolute(segments)
+        !segments.first().contains(":") -> BasicPathNoScheme(segments)
+        else -> BasicPathRootless(segments)
+      }.right()
     }
   }
 }
@@ -407,11 +407,15 @@ sealed interface HierarchicalPartPath : Path {
 }
 
 sealed interface RelativePart : HierarchicalOrRelativePart, RelativeRef {
+  override val scheme: Nothing? get() = null
+  override val hierarchicalPart: RelativePart get() = this
   override val authority: Authority?
   override val path: RelativePartPath
+  override val query: Nothing? get() = null
+  override val fragment: Nothing? get() = null
   companion object : CharSequenceParser<Exception, RelativePart> {
     override operator fun invoke(input: CharSequence): Either<Exception, RelativePart> =
-      castOrFail(input) { it as? RelativePart }
+      UriReference.castOrFail(input) { it as? RelativePart }
 
     fun MatchResult.extractRelativePart(): RelativePart {
       val authority = extractAuthority()
@@ -424,15 +428,14 @@ sealed interface RelativePart : HierarchicalOrRelativePart, RelativeRef {
   }
 }
 
-sealed interface RelativePartPath : Path {
+sealed interface RelativePartPath : Path, RelativePartWithoutAuthority {
   override val segments: List<Segment>
   override val firstSegment: Segment?
   override val secondSegment: Segment?
 
   companion object : CharSequenceParser<Exception, RelativePartPath> {
-    override operator fun invoke(input: CharSequence): Either<Exception, RelativePartPath> {
-      TODO("Not yet implemented")
-    }
+    override operator fun invoke(input: CharSequence): Either<Exception, RelativePartPath> =
+      UriReference.castOrFail(input) { it as? RelativePartPath }
   }
 }
 
@@ -448,7 +451,7 @@ interface RelativePartWithAuthority : RelativePart, HierarchicalOrRelativePartWi
   companion object : CharSequenceParser<Exception, RelativePartWithAuthority> {
     override operator fun invoke(
       input: CharSequence,
-    ): Either<Exception, RelativePartWithAuthority> = castOrFail(input) {
+    ): Either<Exception, RelativePartWithAuthority> = UriReference.castOrFail(input) {
       it as? RelativePartWithAuthority
     }
   }
