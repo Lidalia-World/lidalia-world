@@ -3,47 +3,49 @@ package uk.org.lidalia.uri
 import arrow.core.getOrElse
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.datatest.withData
+import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
 import uk.org.lidalia.lang.CharSequenceParser
-import uk.org.lidalia.uri.implementation.BasicAbsoluteUrl
-import uk.org.lidalia.uri.implementation.BasicAbsoluteUrn
-import uk.org.lidalia.uri.implementation.BasicPathEmpty
-import uk.org.lidalia.uri.implementation.BasicPathNoScheme
-import uk.org.lidalia.uri.implementation.BasicPathRootless
-import uk.org.lidalia.uri.implementation.BasicRelativeRef
-import uk.org.lidalia.uri.implementation.BasicUrl
+import uk.org.lidalia.uri.api.AbsoluteUrl
+import uk.org.lidalia.uri.api.AbsoluteUrn
+import uk.org.lidalia.uri.api.PathEmpty
+import uk.org.lidalia.uri.api.PathNoScheme
+import uk.org.lidalia.uri.api.PathRootless
+import uk.org.lidalia.uri.api.RelativeRef
+import uk.org.lidalia.uri.api.Url
 import kotlin.reflect.KClass
 import kotlin.reflect.full.allSuperclasses
 import kotlin.reflect.full.companionObjectInstance
+import kotlin.reflect.full.superclasses
 
 class ParseInvariantsSpec : StringSpec(
   {
 
     val testCases = listOf(
-      "s:" to BasicAbsoluteUrn::class,
-      "s:foo:bar" to BasicAbsoluteUrn::class,
+      "s:" to AbsoluteUrn::class,
+      "s:foo:bar" to AbsoluteUrn::class,
 
-      "s:b/foo" to BasicAbsoluteUrn::class,
-      "s:b:c/foo" to BasicAbsoluteUrn::class,
+      "s:b/foo" to AbsoluteUrn::class,
+      "s:b:c/foo" to AbsoluteUrn::class,
 
-      "p1:p2/p3" to BasicPathRootless::class,
+      "p1:p2/p3" to PathRootless::class,
 
-      "p1/p2:p3" to BasicPathNoScheme::class,
+      "p1/p2:p3" to PathNoScheme::class,
 
-      "s://h/p2" to BasicAbsoluteUrl::class,
-      "s://h/p2?" to BasicAbsoluteUrl::class,
-      "s://h/p2?q" to BasicAbsoluteUrl::class,
+      "s://h/p2" to AbsoluteUrl::class,
+      "s://h/p2?" to AbsoluteUrl::class,
+      "s://h/p2?q" to AbsoluteUrl::class,
 
-      "s://h/p2#" to BasicUrl::class,
-      "s://h/p2#f" to BasicUrl::class,
-      "s://h/p2?#" to BasicUrl::class,
-      "s://h/p2?q#" to BasicUrl::class,
-      "s://h/p2?#f" to BasicUrl::class,
-      "s://h/p2?q#f" to BasicUrl::class,
+      "s://h/p2#" to Url::class,
+      "s://h/p2#f" to Url::class,
+      "s://h/p2?#" to Url::class,
+      "s://h/p2?q#" to Url::class,
+      "s://h/p2?#f" to Url::class,
+      "s://h/p2?q#f" to Url::class,
 
-      "//h/p2#f" to BasicRelativeRef::class,
-      "/p2#f" to BasicRelativeRef::class,
-      "" to BasicPathEmpty::class,
+      "//h/p2#f" to RelativeRef::class,
+      "/p2#f" to RelativeRef::class,
+      "" to PathEmpty::class,
     )
 
     withData<ParseTestCase>(
@@ -52,7 +54,7 @@ class ParseInvariantsSpec : StringSpec(
     ) { (stringForm, expectedType) ->
       val parser = expectedType.parser ?: throw AssertionError("No parser for $expectedType")
       val parsed = parser(stringForm).getOrElse { throw it }
-      parsed::class shouldBe expectedType
+      parsed::class.superclasses shouldContain expectedType
       parsed.toString() shouldBe stringForm
     }
 
@@ -61,7 +63,7 @@ class ParseInvariantsSpec : StringSpec(
       testCases.toUnambiguousParseTestCases(),
     ) { (stringForm, expectedType, parser) ->
       val parsed = parser(stringForm).getOrElse { throw it }
-      parsed::class shouldBe expectedType
+      parsed::class.superclasses shouldContain expectedType
     }
   },
 )

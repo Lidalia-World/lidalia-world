@@ -41,7 +41,7 @@ import uk.org.lidalia.uri.api.Url
 import uk.org.lidalia.uri.api.Urn
 import uk.org.lidalia.uri.api.UserInfo
 
-internal data class BasicRelativeRef(
+private data class BasicRelativeRef(
   override val hierarchicalPart: RelativePart,
   override val query: Query? = null,
   override val fragment: Fragment? = null,
@@ -52,65 +52,60 @@ internal data class BasicRelativeRef(
   override val path: RelativePartPath = hierarchicalPart.path
 
   override fun toString(): String = hierarchicalPart.toString().append(query).append(fragment)
-
-  companion object : CharSequenceParser<Exception, RelativeRef> {
-    override operator fun invoke(input: CharSequence) =
-      UriReference.castOrFail(input) { it as? RelativeRef }
-  }
 }
 
 @JvmInline
-internal value class BasicScheme(private val value: String) : Scheme, CharSequence by value {
+private value class BasicScheme(private val value: String) : Scheme, CharSequence by value {
   override fun toString() = value
 }
 
 @JvmInline
-internal value class BasicQuery(private val value: String) : Query, CharSequence by value {
+private value class BasicQuery(private val value: String) : Query, CharSequence by value {
   override fun toString() = value
 }
 
 @JvmInline
-internal value class BasicFragment(private val value: String) : Fragment, CharSequence by value {
+private value class BasicFragment(private val value: String) : Fragment, CharSequence by value {
   override fun toString() = value
 }
 
 @JvmInline
-internal value class BasicUserInfo(private val value: String) : UserInfo, CharSequence by value {
+private value class BasicUserInfo(private val value: String) : UserInfo, CharSequence by value {
   override fun toString() = value
 }
 
 @JvmInline
-internal value class BasicIpv4Address(
+private value class BasicIpv4Address(
   private val value: String,
 ) : Ipv4Address, CharSequence by value {
   override fun toString() = value
 }
 
 @JvmInline
-internal value class BasicIpLiteral(private val value: String) : IpLiteral, CharSequence by value {
+private value class BasicIpLiteral(private val value: String) : IpLiteral, CharSequence by value {
   override fun toString() = value
 }
 
 @JvmInline
-internal value class BasicRegisteredName(
+private value class BasicRegisteredName(
   private val value: String,
 ) : RegisteredName, CharSequence by value {
   override fun toString() = value
 }
 
 @JvmInline
-internal value class BasicPort(private val value: Int) : Port {
+private value class BasicPort(private val value: Int) : Port {
   override fun toString() = value.toString()
 }
 
 @JvmInline
-internal value class BasicSegmentNonEmpty(
+private value class BasicSegmentNonEmpty(
   private val value: String,
 ) : SegmentNonEmpty, CharSequence by value {
   override fun toString() = value
 }
 
-internal object BasicPathEmpty : PathEmpty, CharSequenceParser<Exception, PathEmpty> {
+private object BasicPathEmpty : PathEmpty {
   override val authority: Nothing? = null
   override val path: PathEmpty = this
   override val hierarchicalPart: PathEmpty = this
@@ -120,16 +115,10 @@ internal object BasicPathEmpty : PathEmpty, CharSequenceParser<Exception, PathEm
   override val firstSegment: Nothing? = null
   override val secondSegment: Nothing? = null
 
-  override fun invoke(input: CharSequence): Either<Exception, PathEmpty> = if (input.isEmpty()) {
-    this.right()
-  } else {
-    Exception("[$input] is not empty").left()
-  }
-
   override fun toString(): String = ""
 }
 
-internal object BasicSegmentEmpty : SegmentEmpty, CharSequence {
+private object BasicSegmentEmpty : SegmentEmpty, CharSequence {
   override val length: Int = 0
 
   override fun get(index: Int): Char = throw IndexOutOfBoundsException()
@@ -140,7 +129,7 @@ internal object BasicSegmentEmpty : SegmentEmpty, CharSequence {
   override fun toString(): String = ""
 }
 
-internal data class BasicPathAbEmpty(
+private data class BasicPathAbEmpty(
   override val segments: List<Segment>,
 ) : PathAbEmpty {
   override val firstSegment: SegmentEmpty? = segments.firstOrNull() as SegmentEmpty?
@@ -154,7 +143,7 @@ internal data class BasicPathAbEmpty(
   override val fragment: Nothing? = null
 }
 
-internal data class BasicAbsoluteUrl(
+private data class BasicAbsoluteUrl(
   override val scheme: Scheme,
   override val hierarchicalPart: HierarchicalPartWithAuthority,
   override val query: Query?,
@@ -164,11 +153,6 @@ internal data class BasicAbsoluteUrl(
   override val fragment: Nothing? = null
 
   override fun toString(): String = "$scheme://$hierarchicalPart".append(query)
-
-  companion object : CharSequenceParser<Exception, AbsoluteUrl> {
-    override operator fun invoke(input: CharSequence): Either<Exception, AbsoluteUrl> =
-      UriReference.castOrFail(input) { it as? AbsoluteUrl }
-  }
 }
 
 private fun String.append(query: Query?): String = if (query == null) this else "$this?$query"
@@ -176,7 +160,7 @@ private fun String.append(query: Query?): String = if (query == null) this else 
 private fun String.append(fragment: Fragment?): String =
   if (fragment == null) this else "$this#$fragment"
 
-internal data class BasicUrl(
+private data class BasicUrl(
   override val scheme: Scheme,
   override val hierarchicalPart: HierarchicalPartWithAuthority,
   override val query: Query?,
@@ -186,14 +170,9 @@ internal data class BasicUrl(
   override val path: PathAbEmpty = hierarchicalPart.path
 
   override fun toString(): String = "$scheme://$hierarchicalPart".append(query).append(fragment)
-
-  companion object : CharSequenceParser<Exception, Url> {
-    override operator fun invoke(input: CharSequence): Either<Exception, Url> =
-      UriReference.castOrFail(input) { it as? Url }
-  }
 }
 
-internal data class BasicUrn(
+private data class BasicUrn(
   override val scheme: Scheme,
   override val hierarchicalPart: HierarchicalPartWithoutAuthority,
   override val query: Query?,
@@ -201,14 +180,9 @@ internal data class BasicUrn(
 ) : Urn {
   override val authority: Nothing? = null
   override val path: HierarchicalPartPath = hierarchicalPart.path
-
-  companion object : CharSequenceParser<Exception, Urn> {
-    override operator fun invoke(input: CharSequence): Either<Exception, Urn> =
-      UriReference.castOrFail(input) { it as? Urn }
-  }
 }
 
-internal data class BasicAbsoluteUrn(
+private data class BasicAbsoluteUrn(
   override val scheme: Scheme,
   override val hierarchicalPart: HierarchicalPartWithoutAuthority,
   override val query: Query?,
@@ -218,14 +192,9 @@ internal data class BasicAbsoluteUrn(
   override val fragment: Nothing? = null
 
   override fun toString(): String = "$scheme:$hierarchicalPart".append(query)
-
-  companion object : CharSequenceParser<Exception, AbsoluteUrn> {
-    override operator fun invoke(input: CharSequence) =
-      UriReference.castOrFail(input) { it as? AbsoluteUrn }
-  }
 }
 
-fun <A : Any, B : A> CharSequenceParser<Exception, A>.castOrFail(
+internal fun <A : Any, B : A> CharSequenceParser<Exception, A>.castOrFail(
   input: CharSequence,
   f: (A) -> B?,
 ): Either<Exception, B> = this(input)
@@ -233,7 +202,7 @@ fun <A : Any, B : A> CharSequenceParser<Exception, A>.castOrFail(
     f(it)?.right() ?: Exception("$it is of unexpected type ${it::class}").left()
   }
 
-internal data class BasicHierarchicalPartWithAuthority(
+private data class BasicHierarchicalPartWithAuthority(
   override val authority: Authority,
   override val path: PathAbEmpty,
 ) : HierarchicalPartWithAuthority {
@@ -245,7 +214,7 @@ internal data class BasicHierarchicalPartWithAuthority(
   override fun toString(): String = "$authority$path"
 }
 
-internal data class BasicAuthority(
+private data class BasicAuthority(
   override val userInfo: UserInfo?,
   override val host: Host,
   override val port: Port?,
@@ -256,7 +225,7 @@ internal data class BasicAuthority(
 private val UserInfo?.inAuthority get() = if (this == null) "" else "$this@"
 private val Port?.inAuthority get() = if (this == null) "" else ":$this"
 
-internal data class BasicPathAbsolute(
+private data class BasicPathAbsolute(
   override val segments: List<Segment>,
 ) : PathAbsolute {
   override val hierarchicalPart: PathAbsolute = this
@@ -268,25 +237,16 @@ internal data class BasicPathAbsolute(
   override fun toString(): String = segments.joinToString("/")
 }
 
-internal data class BasicPathRootless(
+private data class BasicPathRootless(
   override val segments: List<Segment>,
 ) : PathRootless {
   override val firstSegment: SegmentNonEmpty = segments.first() as SegmentNonEmpty
   override val secondSegment: Segment? = segments.elementAtOrNull(1)
 
   override fun toString(): String = segments.joinToString("/")
-
-  companion object : CharSequenceParser<Exception, PathRootless> {
-    val regex = """[^#?]*""".toRegex()
-
-    override fun invoke(input: CharSequence): Either<Exception, PathRootless> =
-      Path.castOrFail(input) {
-        it as? PathRootless
-      }
-  }
 }
 
-internal data class BasicPathNoScheme(
+private data class BasicPathNoScheme(
   override val segments: List<Segment>,
 ) : PathNoScheme {
   override val firstSegment: SegmentNonEmptyNoColon = segments.first() as SegmentNonEmptyNoColon
@@ -298,14 +258,9 @@ internal data class BasicPathNoScheme(
   override val hierarchicalPart: PathNoScheme = this
   override val query: Nothing? = null
   override val fragment: Nothing? = null
-
-  companion object : CharSequenceParser<Exception, PathNoScheme> {
-    override fun invoke(input: CharSequence): Either<Exception, PathNoScheme> =
-      Path.castOrFail(input) { it as? PathNoScheme }
-  }
 }
 
-internal data class BasicRelativePartWithAuthority(
+private data class BasicRelativePartWithAuthority(
   override val authority: Authority,
   override val path: PathAbEmpty,
 ) : RelativePartWithAuthority {
@@ -316,13 +271,13 @@ internal data class BasicRelativePartWithAuthority(
 }
 
 @JvmInline
-internal value class BasicSegmentNonEmptyNoColon(
+private value class BasicSegmentNonEmptyNoColon(
   private val value: String,
 ) : SegmentNonEmptyNoColon, CharSequence by value {
   override fun toString(): String = value
 }
 
-internal data class BasicHierarchicalPartWithoutAuthority(
+private data class BasicHierarchicalPartWithoutAuthority(
   override val path: HierarchicalPartPath,
 ) : HierarchicalPartWithoutAuthority {
   override val segments: List<Segment> = path.segments
@@ -407,21 +362,21 @@ private val unreserved = """[a-zA-Z0-9\-._~]""".toRegex()
 private val hexDig = "[0-9A-F]".toRegex()
 private val pctEncoded = "%$hexDig{2}".toRegex()
 private val subDelims = """[!${'$'}&'()*+,;=]""".toRegex()
-val userInfoRegex = """($unreserved|$pctEncoded|$subDelims)*""".toRegex()
+private val userInfoRegex = """($unreserved|$pctEncoded|$subDelims)*""".toRegex()
 private val octet = "(([1-2][0-9][0-9])|([0-9][0-9])|([0-9]))".toRegex()
 private val ipv4Address = "(?<ipv4Address>$octet(\\.$octet){3})".toRegex()
 private val ipV6Address = """(\[(?<ipV6Address>[^]])])""".toRegex()
 private val registeredName = """($unreserved|$pctEncoded|$subDelims)*""".toRegex()
-val hostRegex = "($ipV6Address|$ipv4Address|(?<registeredName>$registeredName))".toRegex()
+private val hostRegex = "($ipV6Address|$ipv4Address|(?<registeredName>$registeredName))".toRegex()
 
-fun MatchResult.extractHost(): Host {
+private fun MatchResult.extractHost(): Host {
   return groups["registeredName"]?.toRegisteredName()
     ?: groups["ipv4Address"]?.toIpv4Address()
     ?: groups["ipLiteral"]!!.toIpLiteral()
 }
 
 private val portRegex = "[0-9]+".toRegex()
-val authorityRegex =
+private val authorityRegex =
   "((?<userInfo>$userInfoRegex)@)?(?<host>$hostRegex)(:(?<port>$portRegex))?".toRegex()
 
 private fun MatchResult.extractAuthority(): Authority? = if (groups["authority"] == null) {
@@ -453,7 +408,7 @@ internal fun parsePath(input: CharSequence): Either<Exception, Path> {
   }.right()
 }
 
-val schemeRegex = """[a-zA-Z][a-zA-Z0-9+\-.]*""".toRegex()
+private val schemeRegex = """[a-zA-Z][a-zA-Z0-9+\-.]*""".toRegex()
 
 @Language("RegExp")
 private val scheme = "(?<scheme>$schemeRegex)"
