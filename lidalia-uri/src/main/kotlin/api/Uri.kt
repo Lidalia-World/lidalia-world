@@ -160,8 +160,6 @@ interface Port
 
 sealed interface Path {
   val segments: List<Segment>
-  val firstSegment: Segment?
-  val secondSegment: Segment?
 
   companion object : CharSequenceParser<Exception, Path> {
     override fun invoke(input: CharSequence): Either<Exception, Path> = parsePath(input)
@@ -173,12 +171,10 @@ sealed interface Path {
  */
 interface PathAbEmpty : RelativePartPath, HierarchicalPartPath {
   override val segments: List<Segment>
-  override val firstSegment: SegmentEmpty?
-  override val secondSegment: Segment?
 
   companion object : CharSequenceParser<Exception, PathAbEmpty> {
     override operator fun invoke(input: CharSequence): Either<Exception, PathAbEmpty> =
-      UriReference.castOrFail(input) { it as? PathAbEmpty }
+      Path.castOrFail(input) { it as? PathAbEmpty }
   }
 }
 
@@ -191,8 +187,6 @@ interface PathAbsolute :
   HierarchicalPartWithoutAuthority,
   RelativePartWithoutAuthority {
   override val segments: List<Segment>
-  override val firstSegment: SegmentEmpty
-  override val secondSegment: SegmentNonEmpty?
   override val authority: Nothing? get() = null
   override val path: PathAbsolute get() = this
 
@@ -204,8 +198,6 @@ interface PathAbsolute :
 
 interface PathNoScheme : RelativePartPath, RelativePartWithoutAuthority {
   override val segments: List<Segment>
-  override val firstSegment: SegmentNonEmptyNoColon
-  override val secondSegment: Segment?
 
   companion object : CharSequenceParser<Exception, PathNoScheme> {
     override operator fun invoke(input: CharSequence): Either<Exception, PathNoScheme> =
@@ -215,8 +207,6 @@ interface PathNoScheme : RelativePartPath, RelativePartWithoutAuthority {
 
 interface PathRootless : HierarchicalPartPath {
   override val segments: List<Segment>
-  override val firstSegment: SegmentNonEmpty
-  override val secondSegment: Segment?
 
   companion object : CharSequenceParser<Exception, PathRootless> {
     override operator fun invoke(input: CharSequence): Either<Exception, PathRootless> =
@@ -226,11 +216,10 @@ interface PathRootless : HierarchicalPartPath {
 
 interface PathEmpty :
   PathAbEmpty,
+  PathAbsolute,
   HierarchicalPartWithoutAuthority,
   RelativePartWithoutAuthority {
   override val segments: List<Segment> get() = emptyList()
-  override val firstSegment: Nothing? get() = null
-  override val secondSegment: Nothing? get() = null
   override val authority: Nothing? get() = null
   override val path: PathEmpty get() = this
 
@@ -242,20 +231,12 @@ interface PathEmpty :
 
 interface Segment : CharSequence
 
-interface SegmentNonEmpty : Segment
-
-interface SegmentNonEmptyNoColon : SegmentNonEmpty
-
-interface SegmentEmpty : Segment
-
 interface Query
 
 interface Fragment
 
 sealed interface HierarchicalPartPath : Path {
   override val segments: List<Segment>
-  override val firstSegment: Segment?
-  override val secondSegment: Segment?
 
   companion object : CharSequenceParser<Exception, HierarchicalPartPath> {
     override operator fun invoke(input: CharSequence): Either<Exception, HierarchicalPartPath> =
@@ -277,14 +258,12 @@ sealed interface RelativePart : HierarchicalOrRelativePart, RelativeRef {
   }
 }
 
-sealed interface RelativePartPath : Path, RelativePartWithoutAuthority {
+sealed interface RelativePartPath : Path {
   override val segments: List<Segment>
-  override val firstSegment: Segment?
-  override val secondSegment: Segment?
 
   companion object : CharSequenceParser<Exception, RelativePartPath> {
     override operator fun invoke(input: CharSequence): Either<Exception, RelativePartPath> =
-      UriReference.castOrFail(input) { it as? RelativePartPath }
+      Path.castOrFail(input) { it as? RelativePartPath }
   }
 }
 

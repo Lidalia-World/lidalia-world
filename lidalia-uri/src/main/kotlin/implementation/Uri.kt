@@ -33,9 +33,6 @@ import uk.org.lidalia.uri.api.RelativePartWithoutAuthority
 import uk.org.lidalia.uri.api.RelativeRef
 import uk.org.lidalia.uri.api.Scheme
 import uk.org.lidalia.uri.api.Segment
-import uk.org.lidalia.uri.api.SegmentEmpty
-import uk.org.lidalia.uri.api.SegmentNonEmpty
-import uk.org.lidalia.uri.api.SegmentNonEmptyNoColon
 import uk.org.lidalia.uri.api.UriReference
 import uk.org.lidalia.uri.api.Url
 import uk.org.lidalia.uri.api.Urn
@@ -98,13 +95,6 @@ private value class BasicPort(private val value: Int) : Port {
   override fun toString() = value.toString()
 }
 
-@JvmInline
-private value class BasicSegmentNonEmpty(
-  private val value: String,
-) : SegmentNonEmpty, CharSequence by value {
-  override fun toString() = value
-}
-
 private object BasicPathEmpty : PathEmpty {
   override val authority: Nothing? = null
   override val path: PathEmpty = this
@@ -112,19 +102,6 @@ private object BasicPathEmpty : PathEmpty {
   override val query: Nothing? = null
   override val fragment: Nothing? = null
   override val segments: List<Segment> = emptyList()
-  override val firstSegment: Nothing? = null
-  override val secondSegment: Nothing? = null
-
-  override fun toString(): String = ""
-}
-
-private object BasicSegmentEmpty : SegmentEmpty, CharSequence {
-  override val length: Int = 0
-
-  override fun get(index: Int): Char = throw IndexOutOfBoundsException()
-
-  override fun subSequence(startIndex: Int, endIndex: Int): CharSequence =
-    throw IndexOutOfBoundsException()
 
   override fun toString(): String = ""
 }
@@ -132,15 +109,8 @@ private object BasicSegmentEmpty : SegmentEmpty, CharSequence {
 private data class BasicPathAbEmpty(
   override val segments: List<Segment>,
 ) : PathAbEmpty {
-  override val firstSegment: SegmentEmpty? = segments.firstOrNull() as SegmentEmpty?
-  override val secondSegment: Segment? = segments.elementAtOrNull(1)
 
   override fun toString(): String = segments.joinToString("/")
-
-  override val path: PathAbEmpty = this
-  override val hierarchicalPart: PathAbEmpty = this
-  override val query: Nothing? = null
-  override val fragment: Nothing? = null
 }
 
 private data class BasicAbsoluteUrl(
@@ -231,8 +201,6 @@ private data class BasicPathAbsolute(
   override val hierarchicalPart: PathAbsolute = this
   override val query: Nothing? = null
   override val fragment: Nothing? = null
-  override val firstSegment: SegmentEmpty = segments.first() as SegmentEmpty
-  override val secondSegment: SegmentNonEmpty? = segments.elementAtOrNull(1) as SegmentNonEmpty?
 
   override fun toString(): String = segments.joinToString("/")
 }
@@ -240,18 +208,12 @@ private data class BasicPathAbsolute(
 private data class BasicPathRootless(
   override val segments: List<Segment>,
 ) : PathRootless {
-  override val firstSegment: SegmentNonEmpty = segments.first() as SegmentNonEmpty
-  override val secondSegment: Segment? = segments.elementAtOrNull(1)
-
   override fun toString(): String = segments.joinToString("/")
 }
 
 private data class BasicPathNoScheme(
   override val segments: List<Segment>,
 ) : PathNoScheme {
-  override val firstSegment: SegmentNonEmptyNoColon = segments.first() as SegmentNonEmptyNoColon
-  override val secondSegment: Segment? = segments.elementAtOrNull(1)
-
   override fun toString(): String = segments.joinToString("/")
 
   override val path: PathNoScheme = this
@@ -270,19 +232,10 @@ private data class BasicRelativePartWithAuthority(
   override fun toString(): String = "//$authority$path"
 }
 
-@JvmInline
-private value class BasicSegmentNonEmptyNoColon(
-  private val value: String,
-) : SegmentNonEmptyNoColon, CharSequence by value {
-  override fun toString(): String = value
-}
-
 private data class BasicHierarchicalPartWithoutAuthority(
   override val path: HierarchicalPartPath,
 ) : HierarchicalPartWithoutAuthority {
   override val segments: List<Segment> = path.segments
-  override val firstSegment: Segment? = path.firstSegment
-  override val secondSegment: Segment? = path.secondSegment
 
   override fun toString(): String = path.toString()
 }
@@ -319,13 +272,12 @@ private fun String.toPathAbEmpty(): PathAbEmpty = if (isEmpty()) {
     .toPathAbEmpty()
 }
 
-private fun String.toSegment() = if (isEmpty()) {
-  BasicSegmentEmpty
-} else if (contains(":")) {
-  BasicSegmentNonEmpty(this)
-} else {
-  BasicSegmentNonEmptyNoColon(this)
+@JvmInline
+value class BasicSegment(private val value: String) : Segment, CharSequence by value {
+  override fun toString(): String = value
 }
+
+private fun String.toSegment() = BasicSegment(this)
 
 private fun String.toHierarchicalPartWithoutAuthority(): HierarchicalPartWithoutAuthority =
   if (isEmpty()) {

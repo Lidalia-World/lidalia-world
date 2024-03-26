@@ -9,29 +9,33 @@ import io.kotest.matchers.shouldNot
 import org.reflections.Reflections
 import kotlin.reflect.KClass
 
-val uriReferenceSubTypes: Set<KClass<out UriReference>> = setOf(
-  Uri::class,
-  HierarchicalOrRelativePart::class,
-  RelativeRef::class,
-  Url::class,
-  Urn::class,
-  HierarchicalOrRelativePartWithAuthority::class,
-  HierarchicalOrRelativePartWithoutAuthority::class,
-  HierarchicalPart::class,
+val relativeRefSubTypes: Set<KClass<out RelativeRef>> = setOf(
   RelativePart::class,
   PathAndQuery::class,
-  AbsoluteUrl::class,
-  AbsoluteUrn::class,
-  HierarchicalPartWithAuthority::class,
   RelativePartWithAuthority::class,
-  HierarchicalPartWithoutAuthority::class,
   RelativePartWithoutAuthority::class,
   PathEmpty::class,
   PathAbsolute::class,
-  RelativePartPath::class,
   PathNoScheme::class,
-  PathAbEmpty::class,
 )
+
+val uriSubTypes: Set<KClass<out Uri>> = setOf(
+  Url::class,
+  Urn::class,
+  AbsoluteUrl::class,
+  AbsoluteUrn::class,
+)
+
+val uriReferenceSubTypes: Set<KClass<out UriReference>> = setOf(
+  Uri::class,
+  HierarchicalOrRelativePart::class,
+  HierarchicalOrRelativePartWithAuthority::class,
+  HierarchicalOrRelativePartWithoutAuthority::class,
+  HierarchicalPart::class,
+  HierarchicalPartWithAuthority::class,
+  HierarchicalPartWithoutAuthority::class,
+  RelativeRef::class,
+) + uriSubTypes + relativeRefSubTypes
 
 val hierarchicalPartSubTypes: Set<KClass<out HierarchicalPart>> = setOf(
   HierarchicalPartWithAuthority::class,
@@ -53,9 +57,7 @@ val relativePartSubTypes: Set<KClass<out RelativePart>> = setOf(
   RelativePartWithoutAuthority::class,
   PathEmpty::class,
   PathAbsolute::class,
-  RelativePartPath::class,
   PathNoScheme::class,
-  PathAbEmpty::class,
 )
 
 val relativePartPathSubTypes: Set<KClass<out RelativePartPath>> = setOf(
@@ -100,6 +102,8 @@ class ExpectedTypesSpec : StringSpec({
   val reflections = Reflections("uk.org.lidalia.uri")
 
   withData(
+    subTypesOf<RelativeRef>(relativeRefSubTypes),
+    subTypesOf<Uri>(uriSubTypes),
     subTypesOf<UriReference>(uriReferenceSubTypes),
     subTypesOf<HierarchicalPart>(hierarchicalPartSubTypes),
     subTypesOf<HierarchicalPartPath>(hierarchicalPartPathSubTypes),

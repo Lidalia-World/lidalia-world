@@ -8,6 +8,7 @@ import io.kotest.matchers.shouldBe
 import uk.org.lidalia.lang.CharSequenceParser
 import uk.org.lidalia.uri.api.AbsoluteUrl
 import uk.org.lidalia.uri.api.AbsoluteUrn
+import uk.org.lidalia.uri.api.PathAbEmpty
 import uk.org.lidalia.uri.api.PathAbsolute
 import uk.org.lidalia.uri.api.PathEmpty
 import uk.org.lidalia.uri.api.PathNoScheme
@@ -29,10 +30,6 @@ class ParseInvariantsSpec : StringSpec(
       "s:b/foo" to AbsoluteUrn::class,
       "s:b:c/foo" to AbsoluteUrn::class,
 
-      "p1:p2/p3" to PathRootless::class,
-
-      "p1/p2:p3" to PathNoScheme::class,
-
       "s://h/p2" to AbsoluteUrl::class,
       "s://h/p2?" to AbsoluteUrl::class,
       "s://h/p2?q" to AbsoluteUrl::class,
@@ -47,8 +44,29 @@ class ParseInvariantsSpec : StringSpec(
       "//h/p2#f" to RelativeRef::class,
       "/p2#f" to RelativeRef::class,
 
-      "/p2" to PathAbsolute::class,
       "" to PathEmpty::class,
+
+      "p1" to PathNoScheme::class,
+      "p1/p2/p3" to PathNoScheme::class,
+      "p1/" to PathNoScheme::class,
+      "p1//" to PathNoScheme::class,
+      "p1/p2/" to PathNoScheme::class,
+      "p1//p3" to PathNoScheme::class,
+
+      "p:1" to PathRootless::class,
+      "p:1/p2/p3" to PathRootless::class,
+      "p:1/" to PathRootless::class,
+      "p:1//" to PathRootless::class,
+      "p:1/p2/" to PathRootless::class,
+      "p:1//p3" to PathRootless::class,
+
+      "/" to PathAbsolute::class,
+      "/p2" to PathAbsolute::class,
+      "/p2/" to PathAbsolute::class,
+      "/p2/p3" to PathAbsolute::class,
+
+      "//" to PathAbEmpty::class,
+      "//p3" to PathAbEmpty::class,
     )
 
     withData<ParseTestCase>(
