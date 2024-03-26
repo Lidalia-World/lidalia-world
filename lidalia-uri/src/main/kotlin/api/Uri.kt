@@ -222,7 +222,9 @@ sealed interface RelativePartPath : Path {
   }
 }
 
-sealed interface RelativePartWithoutAuthority : RelativePart, HierarchicalOrRelativePartWithoutAuthority {
+sealed interface RelativePartWithoutAuthority :
+  RelativePart,
+  HierarchicalOrRelativePartWithoutAuthority {
   override val authority: Nothing? get() = null
 
   companion object : CharSequenceParser<Exception, RelativePartWithoutAuthority> {

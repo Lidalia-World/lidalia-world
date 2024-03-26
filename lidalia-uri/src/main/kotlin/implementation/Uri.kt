@@ -150,6 +150,8 @@ private data class BasicUrn(
 ) : Urn {
   override val authority: Nothing? = null
   override val path: HierarchicalPartPath = hierarchicalPart.path
+
+  override fun toString(): String = "$scheme:$hierarchicalPart".append(query).append(fragment)
 }
 
 private data class BasicAbsoluteUrn(

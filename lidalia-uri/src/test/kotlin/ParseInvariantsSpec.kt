@@ -15,6 +15,7 @@ import uk.org.lidalia.uri.api.PathNoScheme
 import uk.org.lidalia.uri.api.PathRootless
 import uk.org.lidalia.uri.api.RelativeRef
 import uk.org.lidalia.uri.api.Url
+import uk.org.lidalia.uri.api.Urn
 import kotlin.reflect.KClass
 import kotlin.reflect.full.allSuperclasses
 import kotlin.reflect.full.companionObjectInstance
@@ -29,6 +30,13 @@ class ParseInvariantsSpec : StringSpec(
 
       "s:b/foo" to AbsoluteUrn::class,
       "s:b:c/foo" to AbsoluteUrn::class,
+
+      "s:p2#" to Urn::class,
+      "s:p2#f" to Urn::class,
+      "s:p2?#" to Urn::class,
+      "s:p2?q#" to Urn::class,
+      "s:p2?#f" to Urn::class,
+      "s:p2?q#f" to Urn::class,
 
       "s://h/p2" to AbsoluteUrl::class,
       "s://h/p2?" to AbsoluteUrl::class,
@@ -69,22 +77,13 @@ class ParseInvariantsSpec : StringSpec(
       "//p3" to PathAbEmpty::class,
     )
 
-    withData<ParseTestCase>(
-      { t -> "[${t.stringForm}] can be parsed to ${t.expectedType.simpleName} symmetrically" },
-      testCases.toParseTestCases(),
-    ) { (stringForm, expectedType) ->
-      val parser = expectedType.parser ?: throw AssertionError("No parser for $expectedType")
-      val parsed = parser(stringForm).getOrElse { throw it }
-      parsed::class.superclasses shouldContain expectedType
-      parsed.toString() shouldBe stringForm
-    }
-
     withData<UnambiguousParseTestCase>(
       { t -> "[${t.stringForm}] is parsed to ${t.expectedType.simpleName} by ${t.parser}" },
       testCases.toUnambiguousParseTestCases(),
     ) { (stringForm, expectedType, parser) ->
       val parsed = parser(stringForm).getOrElse { throw it }
       parsed::class.superclasses shouldContain expectedType
+      parsed.toString() shouldBe stringForm
     }
   },
 )
@@ -93,13 +92,9 @@ class ParseInvariantsSpec : StringSpec(
 private val <T : Any> KClass<T>.parser get() =
   (companionObjectInstance ?: objectInstance) as CharSequenceParser<Exception, T>?
 
-fun List<Pair<String, KClass<out Any>>>.toParseTestCases() = map {
-  ParseTestCase(it.first, it.second)
-}
-
 fun List<Pair<String, KClass<out Any>>>.toUnambiguousParseTestCases() =
   flatMap { (stringForm, expectedType) ->
-    expectedType.allSuperclasses.mapNotNull { superClass ->
+    (expectedType.allSuperclasses + expectedType).mapNotNull { superClass ->
       superClass.parser?.unambiguousParseTestCase(stringForm, expectedType)
     }
   }
@@ -108,11 +103,6 @@ private fun CharSequenceParser<Exception, Any>.unambiguousParseTestCase(
   stringForm: String,
   expectedType: KClass<out Any>,
 ) = UnambiguousParseTestCase(stringForm, expectedType, this)
-
-data class ParseTestCase(
-  val stringForm: String,
-  val expectedType: KClass<out Any>,
-)
 
 data class UnambiguousParseTestCase(
   val stringForm: String,
