@@ -112,10 +112,7 @@ sealed interface Uri : UriReference {
 
   companion object : CharSequenceParser<Exception, Uri> {
     override operator fun invoke(input: CharSequence): Either<Exception, Uri> =
-      UriReference(input).flatMap {
-          ref ->
-        (ref as? Uri)?.right() ?: Exception().left()
-      }
+      UriReference.castOrFail(input) { it as Uri? }
   }
 }
 
@@ -223,10 +220,7 @@ interface RelativeRef : UriReference {
 
   companion object : CharSequenceParser<Exception, RelativeRef> {
     override operator fun invoke(input: CharSequence): Either<Exception, RelativeRef> =
-      UriReference(input).flatMap {
-          ref ->
-        (ref as? RelativeRef)?.right() ?: Exception().left()
-      }
+      UriReference.castOrFail(input) { it as? RelativeRef }
   }
 }
 
@@ -467,10 +461,7 @@ interface Url : Uri {
 
   companion object : CharSequenceParser<Exception, Url> {
     override operator fun invoke(input: CharSequence): Either<Exception, Url> =
-      UriReference(input).flatMap {
-          ref ->
-        (ref as? Url)?.right() ?: Exception().left()
-      }
+      UriReference.castOrFail(input) { it as Url? }
   }
 }
 
@@ -481,10 +472,7 @@ interface AbsoluteUrl : Url {
 
   companion object : CharSequenceParser<Exception, AbsoluteUrl> {
     override operator fun invoke(input: CharSequence): Either<Exception, AbsoluteUrl> =
-      UriReference(input).flatMap {
-          ref ->
-        (ref as? AbsoluteUrl)?.right() ?: Exception().left()
-      }
+      UriReference.castOrFail(input) { it as AbsoluteUrl? }
   }
 }
 
@@ -512,9 +500,6 @@ interface AbsoluteUrn : Urn {
 
   companion object : CharSequenceParser<Exception, AbsoluteUrn> {
     override operator fun invoke(input: CharSequence): Either<Exception, AbsoluteUrn> =
-      UriReference(input).flatMap {
-          ref ->
-        (ref as? AbsoluteUrn)?.right() ?: Exception().left()
-      }
+      UriReference.castOrFail(input) { it as AbsoluteUrn? }
   }
 }
