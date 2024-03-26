@@ -4,11 +4,13 @@ import arrow.core.Either
 import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.right
+import org.intellij.lang.annotations.Language
 import uk.org.lidalia.lang.CharSequenceParser
 import uk.org.lidalia.uri.api.AbsoluteUrl
 import uk.org.lidalia.uri.api.AbsoluteUrn
 import uk.org.lidalia.uri.api.Authority
 import uk.org.lidalia.uri.api.Fragment
+import uk.org.lidalia.uri.api.HierarchicalPart
 import uk.org.lidalia.uri.api.HierarchicalPartPath
 import uk.org.lidalia.uri.api.HierarchicalPartWithAuthority
 import uk.org.lidalia.uri.api.HierarchicalPartWithoutAuthority
@@ -27,6 +29,7 @@ import uk.org.lidalia.uri.api.RegisteredName
 import uk.org.lidalia.uri.api.RelativePart
 import uk.org.lidalia.uri.api.RelativePartPath
 import uk.org.lidalia.uri.api.RelativePartWithAuthority
+import uk.org.lidalia.uri.api.RelativePartWithoutAuthority
 import uk.org.lidalia.uri.api.RelativeRef
 import uk.org.lidalia.uri.api.Scheme
 import uk.org.lidalia.uri.api.Segment
@@ -327,4 +330,180 @@ internal data class BasicHierarchicalPartWithoutAuthority(
   override val secondSegment: Segment? = path.secondSegment
 
   override fun toString(): String = path.toString()
+}
+
+private fun MatchGroup.toScheme() = BasicScheme(value)
+
+private fun MatchGroup.toQuery() = BasicQuery(value)
+
+private fun MatchGroup.toFragment() = BasicFragment(value)
+
+private fun MatchResult.extractHierarchicalPart(): HierarchicalPart {
+  val authority = extractAuthority()
+  return if (authority == null) {
+    groups["path"]!!.value.toHierarchicalPartWithoutAuthority()
+  } else {
+    BasicHierarchicalPartWithAuthority(authority, groups["path"]!!.value.toPathAbEmpty())
+  }
+}
+
+private fun MatchResult.extractRelativePart(): RelativePart {
+  val authority = extractAuthority()
+  return if (authority == null) {
+    groups["path"]!!.value.toRelativePartWithoutAuthority()
+  } else {
+    BasicRelativePartWithAuthority(authority, groups["path"]!!.value.toPathAbEmpty())
+  }
+}
+
+private fun String.toPathAbEmpty(): PathAbEmpty = if (isEmpty()) {
+  BasicPathEmpty
+} else {
+  split('/')
+    .map(String::toSegment)
+    .toPathAbEmpty()
+}
+
+private fun String.toSegment() = if (isEmpty()) {
+  BasicSegmentEmpty
+} else if (contains(":")) {
+  BasicSegmentNonEmpty(this)
+} else {
+  BasicSegmentNonEmptyNoColon(this)
+}
+
+private fun String.toHierarchicalPartWithoutAuthority(): HierarchicalPartWithoutAuthority =
+  if (isEmpty()) {
+    BasicPathEmpty
+  } else {
+    val segments = split('/')
+      .map(String::toSegment)
+    if (segments.first().isEmpty()) {
+      BasicPathAbsolute(segments)
+    } else {
+      BasicHierarchicalPartWithoutAuthority(BasicPathRootless(segments))
+    }
+  }
+
+private fun String.toRelativePartWithoutAuthority(): RelativePartWithoutAuthority = if (isEmpty()) {
+  BasicPathEmpty
+} else {
+  val segments = split('/')
+    .map(String::toSegment)
+  if (segments.first().isEmpty()) {
+    BasicPathAbsolute(segments)
+  } else {
+    BasicPathNoScheme(segments)
+  }
+}
+
+private fun List<Segment>.toPathAbEmpty() = BasicPathAbEmpty(this)
+
+private fun MatchGroup.toUserInfo() = BasicUserInfo(value)
+
+private fun MatchGroup.toPort() = BasicPort(value.toInt())
+
+private val unreserved = """[a-zA-Z0-9\-._~]""".toRegex()
+private val hexDig = "[0-9A-F]".toRegex()
+private val pctEncoded = "%$hexDig{2}".toRegex()
+private val subDelims = """[!${'$'}&'()*+,;=]""".toRegex()
+val userInfoRegex = """($unreserved|$pctEncoded|$subDelims)*""".toRegex()
+private val octet = "(([1-2][0-9][0-9])|([0-9][0-9])|([0-9]))".toRegex()
+private val ipv4Address = "(?<ipv4Address>$octet(\\.$octet){3})".toRegex()
+private val ipV6Address = """(\[(?<ipV6Address>[^]])])""".toRegex()
+private val registeredName = """($unreserved|$pctEncoded|$subDelims)*""".toRegex()
+val hostRegex = "($ipV6Address|$ipv4Address|(?<registeredName>$registeredName))".toRegex()
+
+fun MatchResult.extractHost(): Host {
+  return groups["registeredName"]?.toRegisteredName()
+    ?: groups["ipv4Address"]?.toIpv4Address()
+    ?: groups["ipLiteral"]!!.toIpLiteral()
+}
+
+private val portRegex = "[0-9]+".toRegex()
+val authorityRegex =
+  "((?<userInfo>$userInfoRegex)@)?(?<host>$hostRegex)(:(?<port>$portRegex))?".toRegex()
+
+private fun MatchResult.extractAuthority(): Authority? = if (groups["authority"] == null) {
+  null
+} else {
+  val userInfo = groups["userInfo"]?.toUserInfo()
+  val host = extractHost()
+  val port = groups["port"]?.toPort()
+  BasicAuthority(userInfo, host, port)
+}
+
+private fun MatchGroup.toIpLiteral() = BasicIpLiteral(value)
+
+private fun MatchGroup.toIpv4Address() = BasicIpv4Address(value)
+
+private fun MatchGroup.toRegisteredName() = BasicRegisteredName(value)
+
+private val pathRegex = """[^#?]*""".toRegex()
+
+internal fun parsePath(input: CharSequence): Either<Exception, Path> {
+  val segments = input.split('/')
+    .map(String::toSegment)
+  return when {
+    input.isEmpty() -> BasicPathEmpty
+    input.startsWith("//") -> BasicPathAbEmpty(segments)
+    input.startsWith("/") -> BasicPathAbsolute(segments)
+    !segments.first().contains(":") -> BasicPathNoScheme(segments)
+    else -> BasicPathRootless(segments)
+  }.right()
+}
+
+val schemeRegex = """[a-zA-Z][a-zA-Z0-9+\-.]*""".toRegex()
+
+@Language("RegExp")
+private val scheme = "(?<scheme>$schemeRegex)"
+
+@Language("RegExp")
+private val authority = "(?<authority>$authorityRegex)"
+
+@Language("RegExp")
+private val path = "(?<path>$pathRegex)"
+
+private val queryRegex = "[^#]*".toRegex()
+
+@Language("RegExp")
+private val query = "(?<query>$queryRegex)"
+
+private val fragmentRegex = ".*".toRegex()
+
+@Language("RegExp")
+private val fragment = "(?<fragment>$fragmentRegex)"
+
+private val regex = """^($scheme:)?(//$authority)?$path(\?$query)?(#$fragment)?""".toRegex()
+
+internal fun parseUriReference(input: CharSequence): Either<Exception, UriReference> {
+  val result = regex.find(input)
+  return if (result == null) {
+    Exception().left()
+  } else {
+    val scheme = result.groups["scheme"]?.toScheme()
+    val query = result.groups["query"]?.toQuery()
+    val fragment = result.groups["fragment"]?.toFragment()
+    if (scheme != null) {
+      when (val hierarchicalPart = result.extractHierarchicalPart()) {
+        is HierarchicalPartWithAuthority -> if (fragment == null) {
+          BasicAbsoluteUrl(scheme, hierarchicalPart, query)
+        } else {
+          BasicUrl(scheme, hierarchicalPart, query, fragment)
+        }
+        is HierarchicalPartWithoutAuthority -> if (fragment == null) {
+          BasicAbsoluteUrn(scheme, hierarchicalPart, query)
+        } else {
+          BasicUrn(scheme, hierarchicalPart, query, fragment)
+        }
+      }
+    } else {
+      val relativePart = result.extractRelativePart()
+      if (query != null || fragment != null) {
+        BasicRelativeRef(relativePart, query, fragment)
+      } else {
+        relativePart
+      }
+    }.right()
+  }
 }
