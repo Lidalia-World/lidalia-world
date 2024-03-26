@@ -9,6 +9,7 @@ import uk.org.lidalia.uri.api.AbsoluteUrl
 import uk.org.lidalia.uri.api.AbsoluteUrn
 import uk.org.lidalia.uri.api.Authority
 import uk.org.lidalia.uri.api.Fragment
+import uk.org.lidalia.uri.api.HierarchicalPartPath
 import uk.org.lidalia.uri.api.HierarchicalPartWithAuthority
 import uk.org.lidalia.uri.api.HierarchicalPartWithoutAuthority
 import uk.org.lidalia.uri.api.Host
@@ -196,7 +197,7 @@ internal data class BasicUrn(
   override val fragment: Fragment?,
 ) : Urn {
   override val authority: Nothing? = null
-  override val path: HierarchicalPartWithoutAuthority = hierarchicalPart.path
+  override val path: HierarchicalPartPath = hierarchicalPart.path
 
   companion object : CharSequenceParser<Exception, Urn> {
     override operator fun invoke(input: CharSequence): Either<Exception, Urn> =
@@ -210,7 +211,7 @@ internal data class BasicAbsoluteUrn(
   override val query: Query?,
 ) : AbsoluteUrn {
   override val authority: Nothing? = null
-  override val path: HierarchicalPartWithoutAuthority = hierarchicalPart.path
+  override val path: HierarchicalPartPath = hierarchicalPart.path
   override val fragment: Nothing? = null
 
   override fun toString(): String = "$scheme:$hierarchicalPart".append(query)
@@ -272,11 +273,6 @@ internal data class BasicPathRootless(
 
   override fun toString(): String = segments.joinToString("/")
 
-  override val scheme: Nothing? = null
-  override val hierarchicalPart: PathRootless = this
-  override val query: Nothing? = null
-  override val fragment: Nothing? = null
-
   companion object : CharSequenceParser<Exception, PathRootless> {
     val regex = """[^#?]*""".toRegex()
 
@@ -321,4 +317,14 @@ internal value class BasicSegmentNonEmptyNoColon(
   private val value: String,
 ) : SegmentNonEmptyNoColon, CharSequence by value {
   override fun toString(): String = value
+}
+
+internal data class BasicHierarchicalPartWithoutAuthority(
+  override val path: HierarchicalPartPath,
+) : HierarchicalPartWithoutAuthority {
+  override val segments: List<Segment> = path.segments
+  override val firstSegment: Segment? = path.firstSegment
+  override val secondSegment: Segment? = path.secondSegment
+
+  override fun toString(): String = path.toString()
 }

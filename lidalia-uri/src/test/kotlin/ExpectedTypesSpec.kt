@@ -9,16 +9,22 @@ import io.kotest.matchers.shouldNot
 import org.reflections.Reflections
 import kotlin.reflect.KClass
 
-val uriReferenceSubTypes = setOf(
+val uriReferenceSubTypes: Set<KClass<out UriReference>> = setOf(
   Uri::class,
+  HierarchicalOrRelativePart::class,
   RelativeRef::class,
   Url::class,
   Urn::class,
+  HierarchicalOrRelativePartWithAuthority::class,
+  HierarchicalOrRelativePartWithoutAuthority::class,
+  HierarchicalPart::class,
   RelativePart::class,
   PathAndQuery::class,
   AbsoluteUrl::class,
   AbsoluteUrn::class,
+  HierarchicalPartWithAuthority::class,
   RelativePartWithAuthority::class,
+  HierarchicalPartWithoutAuthority::class,
   RelativePartWithoutAuthority::class,
   PathEmpty::class,
   PathAbsolute::class,
@@ -27,12 +33,11 @@ val uriReferenceSubTypes = setOf(
   PathAbEmpty::class,
 )
 
-val hierarchicalPartSubTypes = setOf(
+val hierarchicalPartSubTypes: Set<KClass<out HierarchicalPart>> = setOf(
   HierarchicalPartWithAuthority::class,
   HierarchicalPartWithoutAuthority::class,
   PathEmpty::class,
   PathAbsolute::class,
-  PathRootless::class,
 )
 
 val hierarchicalPartPathSubTypes: Set<KClass<out HierarchicalPartPath>> = setOf(
@@ -43,7 +48,7 @@ val hierarchicalPartPathSubTypes: Set<KClass<out HierarchicalPartPath>> = setOf(
   PathEmpty::class,
 )
 
-val relativePartSubTypes = setOf(
+val relativePartSubTypes: Set<KClass<out RelativePart>> = setOf(
   RelativePartWithAuthority::class,
   RelativePartWithoutAuthority::class,
   PathEmpty::class,
@@ -53,14 +58,14 @@ val relativePartSubTypes = setOf(
   PathAbEmpty::class,
 )
 
-val relativePartPathSubTypes = setOf(
+val relativePartPathSubTypes: Set<KClass<out RelativePartPath>> = setOf(
   PathAbEmpty::class,
   PathEmpty::class,
   PathAbsolute::class,
   PathNoScheme::class,
 )
 
-val pathSubTypes = setOf(
+val pathSubTypes: Set<KClass<out Path>> = setOf(
   RelativePartPath::class,
   HierarchicalPartPath::class,
   PathAbsolute::class,
@@ -71,12 +76,13 @@ val pathSubTypes = setOf(
   PathEmpty::class,
 )
 
-val hierarchicalOrRelativePartWithAuthoritySubTypes = setOf(
-  HierarchicalPartWithAuthority::class,
-  RelativePartWithAuthority::class,
-)
+val hierarchicalOrRelativePartWithAuthoritySubTypes:
+  Set<KClass<out HierarchicalOrRelativePartWithAuthority>> = setOf(
+    HierarchicalPartWithAuthority::class,
+    RelativePartWithAuthority::class,
+  )
 
-val hierarchicalOrRelativePartSubTypes =
+val hierarchicalOrRelativePartSubTypes: Set<KClass<out HierarchicalOrRelativePart>> =
   setOf(
     HierarchicalOrRelativePartWithAuthority::class,
     HierarchicalOrRelativePartWithoutAuthority::class,

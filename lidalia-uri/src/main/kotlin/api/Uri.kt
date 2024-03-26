@@ -15,6 +15,7 @@ import uk.org.lidalia.uri.implementation.BasicAbsoluteUrn
 import uk.org.lidalia.uri.implementation.BasicAuthority
 import uk.org.lidalia.uri.implementation.BasicFragment
 import uk.org.lidalia.uri.implementation.BasicHierarchicalPartWithAuthority
+import uk.org.lidalia.uri.implementation.BasicHierarchicalPartWithoutAuthority
 import uk.org.lidalia.uri.implementation.BasicIpLiteral
 import uk.org.lidalia.uri.implementation.BasicIpv4Address
 import uk.org.lidalia.uri.implementation.BasicPathAbEmpty
@@ -170,7 +171,7 @@ fun String.toHierarchicalPartWithoutAuthority(): HierarchicalPartWithoutAuthorit
   if (segments.first().isEmpty()) {
     BasicPathAbsolute(segments)
   } else {
-    BasicPathRootless(segments)
+    BasicHierarchicalPartWithoutAuthority(BasicPathRootless(segments))
   }
 }
 
@@ -195,12 +196,12 @@ interface HierarchicalPartWithAuthority :
   override val path: PathAbEmpty
 }
 
-sealed interface HierarchicalPartWithoutAuthority :
+interface HierarchicalPartWithoutAuthority :
   HierarchicalPart,
   HierarchicalOrRelativePartWithoutAuthority,
   HierarchicalPartPath {
   override val authority: Nothing? get() = null
-  override val path: HierarchicalPartWithoutAuthority
+  override val path: HierarchicalPartPath get() = this
 }
 
 sealed interface HierarchicalOrRelativePartWithAuthority : HierarchicalOrRelativePart {
@@ -362,11 +363,10 @@ interface PathNoScheme : RelativePartPath, RelativePartWithoutAuthority {
   override val secondSegment: Segment?
 }
 
-interface PathRootless : HierarchicalPartPath, HierarchicalPartWithoutAuthority {
+interface PathRootless : HierarchicalPartPath {
   override val segments: List<Segment>
   override val firstSegment: SegmentNonEmpty
   override val secondSegment: Segment?
-  override val path: PathRootless get() = this
 }
 
 interface PathEmpty :
@@ -492,7 +492,7 @@ interface Urn : Uri {
   override val scheme: Scheme
   override val hierarchicalPart: HierarchicalPartWithoutAuthority
   override val authority: Nothing? get() = null
-  override val path: HierarchicalPartWithoutAuthority get() = hierarchicalPart.path
+  override val path: HierarchicalPartPath get() = hierarchicalPart.path
   override val query: Query?
   override val fragment: Fragment?
 
@@ -507,7 +507,7 @@ interface Urn : Uri {
 
 interface AbsoluteUrn : Urn {
   override val authority: Nothing? get() = null
-  override val path: HierarchicalPartWithoutAuthority get() = hierarchicalPart.path
+  override val path: HierarchicalPartPath get() = hierarchicalPart.path
   override val fragment: Nothing? get() = null
 
   companion object : CharSequenceParser<Exception, AbsoluteUrn> {
