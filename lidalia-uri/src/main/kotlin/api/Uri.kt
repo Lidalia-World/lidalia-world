@@ -3,7 +3,11 @@ package uk.org.lidalia.uri.api
 import arrow.core.Either
 import uk.org.lidalia.lang.CharSequenceParser
 import uk.org.lidalia.uri.implementation.castOrFail
+import uk.org.lidalia.uri.implementation.parseAuthority
+import uk.org.lidalia.uri.implementation.parseFragment
 import uk.org.lidalia.uri.implementation.parsePath
+import uk.org.lidalia.uri.implementation.parseQuery
+import uk.org.lidalia.uri.implementation.parseScheme
 import uk.org.lidalia.uri.implementation.parseUriReference
 
 sealed interface UriReference {
@@ -20,6 +24,8 @@ sealed interface UriReference {
   }
 }
 
+fun String.toUriReference(): Either<Exception, UriReference> = UriReference(this)
+
 sealed interface Uri : UriReference {
   override val scheme: Scheme
   override val hierarchicalPart: HierarchicalPart
@@ -33,6 +39,8 @@ sealed interface Uri : UriReference {
       UriReference.castOrFail(input) { it as Uri? }
   }
 }
+
+fun String.toUri(): Either<Exception, Uri> = Uri(this)
 
 sealed interface HierarchicalOrRelativePart {
   val authority: Authority?
@@ -81,25 +89,42 @@ interface RelativeRef : UriReference {
   }
 }
 
+fun String.toRelativeRef(): Either<Exception, RelativeRef> = RelativeRef(this)
+
 interface PathAndQuery : RelativeRef {
   override val hierarchicalPart: PathAbsolute
   override val authority: Nothing? get() = null
   override val path: PathAbsolute
   override val fragment: Nothing? get() = null
 
-  companion object : CharSequenceParser<Exception, RelativeRef> {
-    override operator fun invoke(input: CharSequence): Either<Exception, RelativeRef> =
-      UriReference.castOrFail(input) { it as? RelativeRef }
+  companion object : CharSequenceParser<Exception, PathAndQuery> {
+    override operator fun invoke(input: CharSequence): Either<Exception, PathAndQuery> =
+      UriReference.castOrFail(input) { it as? PathAndQuery }
   }
 }
 
-interface Scheme : CharSequence
+fun String.toPathAndQuery(): Either<Exception, PathAndQuery> = PathAndQuery(this)
+
+interface Scheme : CharSequence {
+  companion object : CharSequenceParser<Exception, Scheme> {
+    override operator fun invoke(input: CharSequence): Either<Exception, Scheme> =
+      parseScheme(input)
+  }
+}
+
+fun String.toScheme(): Either<Exception, Scheme> = Scheme(this)
 
 interface Authority {
   val userInfo: UserInfo?
   val host: Host
   val port: Port?
+  companion object : CharSequenceParser<Exception, Authority> {
+    override operator fun invoke(input: CharSequence): Either<Exception, Authority> =
+      parseAuthority(input)
+  }
 }
+
+fun String.toAuthority(): Either<Exception, Authority> = Authority(this)
 
 interface UserInfo
 
@@ -121,6 +146,8 @@ sealed interface Path {
   }
 }
 
+fun String.toPath(): Either<Exception, Path> = Path(this)
+
 /*
  * Empty, or an absolute path that MAY start with //
  */
@@ -140,7 +167,8 @@ interface PathAbsolute :
   RelativePartPath,
   HierarchicalPartPath,
   HierarchicalPartWithoutAuthority,
-  RelativePartWithoutAuthority {
+  RelativePartWithoutAuthority,
+  PathAbEmpty {
   override val segments: List<Segment>
   override val authority: Nothing? get() = null
   override val path: PathAbsolute get() = this
@@ -151,7 +179,7 @@ interface PathAbsolute :
   }
 }
 
-interface PathNoScheme : RelativePartPath, RelativePartWithoutAuthority {
+interface PathNoScheme : RelativePartPath, RelativePartWithoutAuthority, PathRootless {
   override val segments: List<Segment>
 
   companion object : CharSequenceParser<Exception, PathNoScheme> {
@@ -186,9 +214,22 @@ interface PathEmpty :
 
 interface Segment : CharSequence
 
-interface Query
+interface Query : CharSequence {
+  companion object : CharSequenceParser<Exception, Query> {
+    override operator fun invoke(input: CharSequence): Either<Exception, Query> = parseQuery(input)
+  }
+}
 
-interface Fragment
+fun String.toQuery() = Query(this)
+
+interface Fragment : CharSequence {
+  companion object : CharSequenceParser<Exception, Fragment> {
+    override operator fun invoke(input: CharSequence): Either<Exception, Fragment> =
+      parseFragment(input)
+  }
+}
+
+fun String.toFragment() = Fragment(this)
 
 sealed interface HierarchicalPartPath : Path {
   override val segments: List<Segment>

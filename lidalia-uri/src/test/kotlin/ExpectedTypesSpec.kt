@@ -42,6 +42,7 @@ val hierarchicalPartPathSubTypes: Set<KClass<out HierarchicalPartPath>> = setOf(
   PathAbsolute::class,
   PathAbEmpty::class,
   PathRootless::class,
+  PathNoScheme::class,
   PathEmpty::class,
 )
 

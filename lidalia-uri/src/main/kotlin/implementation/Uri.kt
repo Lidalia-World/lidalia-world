@@ -242,29 +242,37 @@ private fun MatchGroup.toQuery() = BasicQuery(value)
 private fun MatchGroup.toFragment() = BasicFragment(value)
 
 private fun MatchResult.extractHierarchicalPart(): HierarchicalPart {
-  val authority = extractAuthority()
+  val authority = extractAuthorityOrNull()
+  val pathStr = groups["path"]!!.value
   return if (authority == null) {
-    groups["path"]!!.value.toHierarchicalPartWithoutAuthority()
+    pathStr.toHierarchicalPartWithoutAuthority()
   } else {
-    BasicHierarchicalPartWithAuthority(authority, groups["path"]!!.value.toPathAbEmpty())
+    val segments = pathStr.split('/')
+      .map(String::toSegment)
+    val path: PathAbEmpty = when {
+      pathStr.isEmpty() -> BasicPathEmpty
+      pathStr.startsWith("//") -> BasicPathAbEmpty(segments)
+      else -> BasicPathAbsolute(segments)
+    }
+    return BasicHierarchicalPartWithAuthority(authority, path)
   }
 }
 
 private fun MatchResult.extractRelativePart(): RelativePart {
-  val authority = extractAuthority()
+  val authority = extractAuthorityOrNull()
+  val pathStr = groups["path"]!!.value
   return if (authority == null) {
-    groups["path"]!!.value.toRelativePartWithoutAuthority()
+    pathStr.toRelativePartWithoutAuthority()
   } else {
-    BasicRelativePartWithAuthority(authority, groups["path"]!!.value.toPathAbEmpty())
+    val segments = pathStr.split('/')
+      .map(String::toSegment)
+    val path: PathAbEmpty = when {
+      pathStr.isEmpty() -> BasicPathEmpty
+      pathStr.startsWith("//") -> BasicPathAbEmpty(segments)
+      else -> BasicPathAbsolute(segments)
+    }
+    return BasicRelativePartWithAuthority(authority, path)
   }
-}
-
-private fun String.toPathAbEmpty(): PathAbEmpty = if (isEmpty()) {
-  BasicPathEmpty
-} else {
-  split('/')
-    .map(String::toSegment)
-    .toPathAbEmpty()
 }
 
 @JvmInline
@@ -274,18 +282,18 @@ value class BasicSegment(private val value: String) : Segment, CharSequence by v
 
 private fun String.toSegment() = BasicSegment(this)
 
-private fun String.toHierarchicalPartWithoutAuthority(): HierarchicalPartWithoutAuthority =
-  if (isEmpty()) {
-    BasicPathEmpty
-  } else {
-    val segments = split('/')
-      .map(String::toSegment)
-    if (segments.first().isEmpty()) {
-      BasicPathAbsolute(segments)
-    } else {
-      BasicHierarchicalPartWithoutAuthority(BasicPathRootless(segments))
-    }
+private fun String.toHierarchicalPartWithoutAuthority(): HierarchicalPartWithoutAuthority {
+  val segments = this.split('/')
+    .map(String::toSegment)
+  return when {
+    this.isEmpty() -> BasicPathEmpty
+    this.startsWith("//") -> BasicHierarchicalPartWithoutAuthority(BasicPathAbEmpty(segments))
+    this.startsWith("/") -> BasicPathAbsolute(segments)
+    !segments.first().contains(":") ->
+      BasicHierarchicalPartWithoutAuthority(BasicPathNoScheme(segments))
+    else -> BasicHierarchicalPartWithoutAuthority(BasicPathRootless(segments))
   }
+}
 
 private fun String.toRelativePartWithoutAuthority(): RelativePartWithoutAuthority = if (isEmpty()) {
   BasicPathEmpty
@@ -298,8 +306,6 @@ private fun String.toRelativePartWithoutAuthority(): RelativePartWithoutAuthorit
     BasicPathNoScheme(segments)
   }
 }
-
-private fun List<Segment>.toPathAbEmpty() = BasicPathAbEmpty(this)
 
 private fun MatchGroup.toUserInfo() = BasicUserInfo(value)
 
@@ -326,13 +332,17 @@ private val portRegex = "[0-9]+".toRegex()
 private val authorityRegex =
   "((?<userInfo>$userInfoRegex)@)?(?<host>$hostRegex)(:(?<port>$portRegex))?".toRegex()
 
-private fun MatchResult.extractAuthority(): Authority? = if (groups["authority"] == null) {
+private fun MatchResult.extractAuthorityOrNull(): Authority? = if (groups["authority"] == null) {
   null
 } else {
+  extractAuthority()
+}
+
+private fun MatchResult.extractAuthority(): BasicAuthority {
   val userInfo = groups["userInfo"]?.toUserInfo()
   val host = extractHost()
   val port = groups["port"]?.toPort()
-  BasicAuthority(userInfo, host, port)
+  return BasicAuthority(userInfo, host, port)
 }
 
 private fun MatchGroup.toIpLiteral() = BasicIpLiteral(value)
@@ -409,3 +419,30 @@ internal fun parseUriReference(input: CharSequence): Either<Exception, UriRefere
     }.right()
   }
 }
+
+internal fun parseScheme(input: CharSequence): Either<Exception, Scheme> =
+  if (schemeRegex.matches(input)) {
+    BasicScheme(input.toString()).right()
+  } else {
+    Exception("[$input] is not a valid scheme").left()
+  }
+
+internal fun parseAuthority(input: CharSequence): Either<Exception, Authority> {
+  val result = authorityRegex.find(input)
+  return result?.extractAuthority()?.right()
+    ?: Exception("[$input] is not a valid authority").left()
+}
+
+internal fun parseQuery(input: CharSequence): Either<Exception, Query> =
+  if (queryRegex.matches(input)) {
+    BasicQuery(input.toString()).right()
+  } else {
+    Exception("[$input] is not a valid query").left()
+  }
+
+internal fun parseFragment(input: CharSequence): Either<Exception, Fragment> =
+  if (fragmentRegex.matches(input)) {
+    BasicFragment(input.toString()).right()
+  } else {
+    Exception("[$input] is not a valid fragment").left()
+  }
