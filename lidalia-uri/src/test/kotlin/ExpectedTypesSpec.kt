@@ -28,12 +28,6 @@ val uriSubTypes: Set<KClass<out Uri>> = setOf(
 
 val uriReferenceSubTypes: Set<KClass<out UriReference>> = setOf(
   Uri::class,
-  HierarchicalOrRelativePart::class,
-  HierarchicalOrRelativePartWithAuthority::class,
-  HierarchicalOrRelativePartWithoutAuthority::class,
-  HierarchicalPart::class,
-  HierarchicalPartWithAuthority::class,
-  HierarchicalPartWithoutAuthority::class,
   RelativeRef::class,
 ) + uriSubTypes + relativeRefSubTypes
 

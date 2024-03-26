@@ -176,11 +176,6 @@ private data class BasicHierarchicalPartWithAuthority(
   override val authority: Authority,
   override val path: PathAbEmpty,
 ) : HierarchicalPartWithAuthority {
-  override val scheme: Nothing? = null
-  override val hierarchicalPart: HierarchicalPartWithAuthority = this
-  override val query: Nothing? = null
-  override val fragment: Nothing? = null
-
   override fun toString(): String = "$authority$path"
 }
 
