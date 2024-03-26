@@ -49,8 +49,33 @@ class ParseInvariantsSpec : StringSpec(
       "s://h/p2?#f" to Url::class,
       "s://h/p2?q#f" to Url::class,
 
+      "//h/p2#" to RelativeRef::class,
       "//h/p2#f" to RelativeRef::class,
-      "/p2#f" to RelativeRef::class,
+      "//h/p2?#" to RelativeRef::class,
+      "//h/p2?q#" to RelativeRef::class,
+      "//h/p2?#f" to RelativeRef::class,
+      "//h/p2?q#f" to RelativeRef::class,
+
+      "/p2/p3#" to RelativeRef::class,
+      "/p2/p3#f" to RelativeRef::class,
+      "/p2/p3?#" to RelativeRef::class,
+      "/p2/p3?q#" to RelativeRef::class,
+      "/p2/p3?#f" to RelativeRef::class,
+      "/p2/p3?q#f" to RelativeRef::class,
+
+      "p1/p2#" to RelativeRef::class,
+      "p1/p2#f" to RelativeRef::class,
+      "p1/p2?#" to RelativeRef::class,
+      "p1/p2?q#" to RelativeRef::class,
+      "p1/p2?#f" to RelativeRef::class,
+      "p1/p2?q#f" to RelativeRef::class,
+
+      "p1#" to RelativeRef::class,
+      "p1#f" to RelativeRef::class,
+      "p1?#" to RelativeRef::class,
+      "p1?q#" to RelativeRef::class,
+      "p1?#f" to RelativeRef::class,
+      "p1?q#f" to RelativeRef::class,
 
       "" to PathEmpty::class,
 
