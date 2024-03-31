@@ -1,6 +1,7 @@
 name: Build
 
 on:
+  workflow_dispatch:
   push:
     branches-ignore:
       - 'abandoned-*'
@@ -33,12 +34,9 @@ jobs:
         with:
           target: build-output
           outputs: 'type=local,dest=build'
-          provenance: false
 
       - uses: docker/build-push-action@v5
         if: ${{ hashFiles('build/failed') != '' }}
-        with:
-          provenance: false
 
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action@v2
@@ -59,5 +57,5 @@ jobs:
         uses: actions/upload-artifact@v4
         if: success()
         with:
-          name: jars
-          path: build/libs
+          name: artifacts
+          path: build/artifacts

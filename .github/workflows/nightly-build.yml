@@ -39,4 +39,4 @@ jobs:
         if: success()
         with:
           name: jars
-          path: build/libs
+          path: build/artifacts

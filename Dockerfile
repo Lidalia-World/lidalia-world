@@ -2,10 +2,10 @@
 ARG username=worker
 ARG work_dir=/home/$username/work
 
-# Copy across all the *.gradle.kts files in a separate stage
+# Copy across all the build definition files in a separate stage
 # This will not get any layer caching if anything in the context has changed, but when we
 # subsequently copy them into a different stage that stage *will* get layer caching. So if none of
-# the *.gradle.kts files have changed, a subsequent command will also get layer caching.
+# the build definition files have changed, a subsequent command will also get layer caching.
 FROM --platform=$BUILDPLATFORM alpine as gradle-files
 RUN --mount=type=bind,target=/docker-context \
     mkdir -p /gradle-files/gradle && \
@@ -39,7 +39,7 @@ COPY --link --chown=$uid gradlew gradlew
 RUN ./gradlew --version
 
 ARG gradle_cache_dir=/home/$username/.gradle/caches
-ARG gradle_cache_dir_v=$gradle_cache_dir/8.6
+ARG gradle_cache_dir_v=$gradle_cache_dir/8.7
 
 RUN mkdir -p $gradle_cache_dir_v
 

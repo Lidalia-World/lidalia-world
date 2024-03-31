@@ -20,10 +20,29 @@ buildscript {
   }
 }
 
+val artifacts: Configuration by configurations.creating {
+  isTransitive = false
+}
+
+dependencies {
+  subprojects.forEach { project ->
+    artifacts(project(project.path))
+  }
+}
+
 tasks {
   check {
     dependsOn("buildHealth")
     dependsOn("installKotlinterPrePushHook")
+  }
+
+  val copyArtifacts by registering(Copy::class) {
+    from(artifacts)
+    into(layout.buildDirectory.dir("artifacts"))
+  }
+
+  assemble {
+    dependsOn(copyArtifacts)
   }
 }
 
