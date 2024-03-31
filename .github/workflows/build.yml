@@ -57,5 +57,5 @@ jobs:
         uses: actions/upload-artifact@v4
         if: success()
         with:
-          name: artifacts
+          name: ${{ github.event.repository.name }}-artifacts
           path: build/artifacts
