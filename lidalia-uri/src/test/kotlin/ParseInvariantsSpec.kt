@@ -13,6 +13,7 @@ import uk.org.lidalia.uri.api.Fragment
 import uk.org.lidalia.uri.api.Path
 import uk.org.lidalia.uri.api.PathAbEmpty
 import uk.org.lidalia.uri.api.PathAbsolute
+import uk.org.lidalia.uri.api.PathAndQuery
 import uk.org.lidalia.uri.api.PathEmpty
 import uk.org.lidalia.uri.api.PathNoScheme
 import uk.org.lidalia.uri.api.PathRootless
@@ -79,6 +80,18 @@ class ParseInvariantsSpec : StringSpec(
       testCase<RelativeRef>("p1?q#", expectation(null, null, "p1", "q", "")),
       testCase<RelativeRef>("p1?#f", expectation(null, null, "p1", "", "f")),
       testCase<RelativeRef>("p1?q#f", expectation(null, null, "p1", "q", "f")),
+
+      testCase<PathAndQuery>("?", expectation(null, null, "", "", null)),
+      testCase<PathAndQuery>("?q", expectation(null, null, "", "q", null)),
+      testCase<PathAndQuery>("/?", expectation(null, null, "/", "", null)),
+      testCase<PathAndQuery>("/?q", expectation(null, null, "/", "q", null)),
+      testCase<PathAndQuery>("/p2?", expectation(null, null, "/p2", "", null)),
+      testCase<PathAndQuery>("/p2?q", expectation(null, null, "/p2", "q", null)),
+      testCase<PathAndQuery>("/p2/?", expectation(null, null, "/p2/", "", null)),
+      testCase<PathAndQuery>("/p2/?q", expectation(null, null, "/p2/", "q", null)),
+      testCase<PathAndQuery>("/p2/p3?", expectation(null, null, "/p2/p3", "", null)),
+      testCase<PathAndQuery>("/p2/p3?q", expectation(null, null, "/p2/p3", "q", null)),
+
       testCase<PathEmpty>("", expectation(null, null, "", null, null)),
       testCase<PathNoScheme>("p1", expectation(null, null, "p1", null, null)),
       testCase<PathNoScheme>("p1/p2/p3", expectation(null, null, "p1/p2/p3", null, null)),

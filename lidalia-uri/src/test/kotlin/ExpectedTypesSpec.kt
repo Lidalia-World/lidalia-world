@@ -9,15 +9,23 @@ import io.kotest.matchers.shouldNot
 import org.reflections.Reflections
 import kotlin.reflect.KClass
 
-val relativeRefSubTypes: Set<KClass<out RelativeRef>> = setOf(
-  RelativePart::class,
-  PathAndQuery::class,
+val pathAndQuerySubTypes: Set<KClass<out PathAndQuery>> = setOf(
+  PathEmpty::class,
+  PathAbsolute::class,
+)
+
+val relativePartSubTypes: Set<KClass<out RelativePart>> = setOf(
   RelativePartWithAuthority::class,
   RelativePartWithoutAuthority::class,
   PathEmpty::class,
   PathAbsolute::class,
   PathNoScheme::class,
 )
+
+val relativeRefSubTypes: Set<KClass<out RelativeRef>> = setOf(
+  RelativePart::class,
+  PathAndQuery::class,
+) + relativePartSubTypes + pathAndQuerySubTypes
 
 val uriSubTypes: Set<KClass<out Uri>> = setOf(
   Url::class,
@@ -44,14 +52,6 @@ val hierarchicalPartPathSubTypes: Set<KClass<out HierarchicalPartPath>> = setOf(
   PathRootless::class,
   PathNoScheme::class,
   PathEmpty::class,
-)
-
-val relativePartSubTypes: Set<KClass<out RelativePart>> = setOf(
-  RelativePartWithAuthority::class,
-  RelativePartWithoutAuthority::class,
-  PathEmpty::class,
-  PathAbsolute::class,
-  PathNoScheme::class,
 )
 
 val relativePartPathSubTypes: Set<KClass<out RelativePartPath>> = setOf(
@@ -101,6 +101,7 @@ class ExpectedTypesSpec : StringSpec({
     subTypesOf<HierarchicalPart>(hierarchicalPartSubTypes),
     subTypesOf<HierarchicalPartPath>(hierarchicalPartPathSubTypes),
     subTypesOf<RelativePart>(relativePartSubTypes),
+    subTypesOf<PathAndQuery>(pathAndQuerySubTypes),
     subTypesOf<RelativePartPath>(relativePartPathSubTypes),
     subTypesOf<Path>(pathSubTypes),
     subTypesOf<HierarchicalOrRelativePart>(hierarchicalOrRelativePartSubTypes),

@@ -168,10 +168,13 @@ interface PathAbsolute :
   HierarchicalPartPath,
   HierarchicalPartWithoutAuthority,
   RelativePartWithoutAuthority,
+  PathAndQuery,
   PathAbEmpty {
   override val segments: List<Segment>
+  override val hierarchicalPart: PathAbsolute get() = this
   override val authority: Nothing? get() = null
   override val path: PathAbsolute get() = this
+  override val fragment: Nothing? get() = null
 
   companion object : CharSequenceParser<Exception, PathAbsolute> {
     override operator fun invoke(input: CharSequence): Either<Exception, PathAbsolute> =
@@ -199,9 +202,7 @@ interface PathRootless : HierarchicalPartPath {
 
 interface PathEmpty :
   PathAbEmpty,
-  PathAbsolute,
-  HierarchicalPartWithoutAuthority,
-  RelativePartWithoutAuthority {
+  PathAbsolute {
   override val segments: List<Segment> get() = emptyList()
   override val authority: Nothing? get() = null
   override val path: PathEmpty get() = this

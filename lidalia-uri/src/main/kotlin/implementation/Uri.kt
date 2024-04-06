@@ -20,6 +20,7 @@ import uk.org.lidalia.uri.api.Ipv4Address
 import uk.org.lidalia.uri.api.Path
 import uk.org.lidalia.uri.api.PathAbEmpty
 import uk.org.lidalia.uri.api.PathAbsolute
+import uk.org.lidalia.uri.api.PathAndQuery
 import uk.org.lidalia.uri.api.PathEmpty
 import uk.org.lidalia.uri.api.PathNoScheme
 import uk.org.lidalia.uri.api.PathRootless
@@ -49,6 +50,18 @@ private data class BasicRelativeRef(
   override val path: RelativePartPath = hierarchicalPart.path
 
   override fun toString(): String = hierarchicalPart.toString().append(query).append(fragment)
+}
+
+private data class BasicPathAndQuery(
+  override val hierarchicalPart: PathAbsolute,
+  override val query: Query? = null,
+) : PathAndQuery {
+
+  override val scheme: Nothing? = null
+  override val authority: Nothing? = null
+  override val path: PathAbsolute = hierarchicalPart
+
+  override fun toString(): String = path.toString().append(query)
 }
 
 @JvmInline
@@ -412,7 +425,11 @@ internal fun parseUriReference(input: CharSequence): Either<Exception, UriRefere
     } else {
       val relativePart = result.extractRelativePart()
       if (query != null || fragment != null) {
-        BasicRelativeRef(relativePart, query, fragment)
+        if (fragment == null && relativePart is PathAbsolute) {
+          BasicPathAndQuery(relativePart, query)
+        } else {
+          BasicRelativeRef(relativePart, query, fragment)
+        }
       } else {
         relativePart
       }
