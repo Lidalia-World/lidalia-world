@@ -50,12 +50,12 @@ jobs:
         uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: build
+          name: ${{ github.event.repository.name }}-${{github.run_number}}-build
           path: build
 
       - name: Archive output
         uses: actions/upload-artifact@v4
         if: success()
         with:
-          name: ${{ github.event.repository.name }}-artifacts
+          name: ${{ github.event.repository.name }}-${{github.run_number}}-artifacts
           path: build/artifacts
