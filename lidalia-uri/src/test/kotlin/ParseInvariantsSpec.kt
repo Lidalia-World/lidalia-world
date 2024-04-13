@@ -11,12 +11,7 @@ import uk.org.lidalia.uri.api.AbsoluteUrn
 import uk.org.lidalia.uri.api.Authority
 import uk.org.lidalia.uri.api.Fragment
 import uk.org.lidalia.uri.api.Path
-import uk.org.lidalia.uri.api.PathAbEmpty
-import uk.org.lidalia.uri.api.PathAbsolute
 import uk.org.lidalia.uri.api.PathAndQuery
-import uk.org.lidalia.uri.api.PathEmpty
-import uk.org.lidalia.uri.api.PathNoScheme
-import uk.org.lidalia.uri.api.PathRootless
 import uk.org.lidalia.uri.api.Query
 import uk.org.lidalia.uri.api.RelativeRef
 import uk.org.lidalia.uri.api.Scheme
@@ -28,6 +23,7 @@ import uk.org.lidalia.uri.api.toFragment
 import uk.org.lidalia.uri.api.toPath
 import uk.org.lidalia.uri.api.toQuery
 import uk.org.lidalia.uri.api.toScheme
+import uk.org.lidalia.uri.implementation.BasicSegment
 import kotlin.reflect.KClass
 import kotlin.reflect.full.allSuperclasses
 import kotlin.reflect.full.companionObjectInstance
@@ -38,7 +34,8 @@ class ParseInvariantsSpec : StringSpec(
 
     val uriReferenceTestCases = listOf(
       testCase<AbsoluteUrn>("s:", expectation("s", null, "", null, null)),
-      testCase<AbsoluteUrn>("s:foo:bar", expectation("s", null, "foo:bar", null, null)),
+      testCase<AbsoluteUrn>("s:p1", expectation("s", null, "p1", null, null)),
+      testCase<AbsoluteUrn>("s:p:1", expectation("s", null, "p:1", null, null)),
       testCase<AbsoluteUrn>("s:b/foo", expectation("s", null, "b/foo", null, null)),
       testCase<AbsoluteUrn>("s:b:c/foo", expectation("s", null, "b:c/foo", null, null)),
       testCase<Urn>("s:p1#", expectation("s", null, "p1", null, "")),
@@ -81,8 +78,20 @@ class ParseInvariantsSpec : StringSpec(
       testCase<RelativeRef>("p1?#f", expectation(null, null, "p1", "", "f")),
       testCase<RelativeRef>("p1?q#f", expectation(null, null, "p1", "q", "f")),
 
-      testCase<PathAndQuery>("?", expectation(null, null, "", "", null)),
-      testCase<PathAndQuery>("?q", expectation(null, null, "", "q", null)),
+      testCase<RelativeRef>("", expectation(null, null, "", null, null)),
+      testCase<RelativeRef>("p1", expectation(null, null, "p1", null, null)),
+      testCase<RelativeRef>("p1/p2/p3", expectation(null, null, "p1/p2/p3", null, null)),
+      testCase<RelativeRef>("p1/", expectation(null, null, "p1/", null, null)),
+      testCase<RelativeRef>("p1//", expectation(null, null, "p1//", null, null)),
+      testCase<RelativeRef>("p1/p2/", expectation(null, null, "p1/p2/", null, null)),
+      testCase<RelativeRef>("p1//p3", expectation(null, null, "p1//p3", null, null)),
+      testCase<RelativeRef>("?", expectation(null, null, "", "", null)),
+      testCase<RelativeRef>("?q", expectation(null, null, "", "q", null)),
+
+      testCase<PathAndQuery>("/", expectation(null, null, "/", null, null)),
+      testCase<PathAndQuery>("/p2", expectation(null, null, "/p2", null, null)),
+      testCase<PathAndQuery>("/p2/", expectation(null, null, "/p2/", null, null)),
+      testCase<PathAndQuery>("/p2/p3", expectation(null, null, "/p2/p3", null, null)),
       testCase<PathAndQuery>("/?", expectation(null, null, "/", "", null)),
       testCase<PathAndQuery>("/?q", expectation(null, null, "/", "q", null)),
       testCase<PathAndQuery>("/p2?", expectation(null, null, "/p2", "", null)),
@@ -92,39 +101,35 @@ class ParseInvariantsSpec : StringSpec(
       testCase<PathAndQuery>("/p2/p3?", expectation(null, null, "/p2/p3", "", null)),
       testCase<PathAndQuery>("/p2/p3?q", expectation(null, null, "/p2/p3", "q", null)),
 
-      testCase<PathEmpty>("", expectation(null, null, "", null, null)),
-      testCase<PathNoScheme>("p1", expectation(null, null, "p1", null, null)),
-      testCase<PathNoScheme>("p1/p2/p3", expectation(null, null, "p1/p2/p3", null, null)),
-      testCase<PathNoScheme>("p1/", expectation(null, null, "p1/", null, null)),
-      testCase<PathNoScheme>("p1//", expectation(null, null, "p1//", null, null)),
-      testCase<PathNoScheme>("p1/p2/", expectation(null, null, "p1/p2/", null, null)),
-      testCase<PathNoScheme>("p1//p3", expectation(null, null, "p1//p3", null, null)),
-      testCase<PathAbsolute>("/", expectation(null, null, "/", null, null)),
-      testCase<PathAbsolute>("/p2", expectation(null, null, "/p2", null, null)),
-      testCase<PathAbsolute>("/p2/", expectation(null, null, "/p2/", null, null)),
-      testCase<PathAbsolute>("/p2/p3", expectation(null, null, "/p2/p3", null, null)),
+      testCase<AbsoluteUrn>("s:1/p2/p3", expectation("s", null, "1/p2/p3", null, null)),
+      testCase<AbsoluteUrn>("s:1/", expectation("s", null, "1/", null, null)),
+      testCase<AbsoluteUrn>("s:1//", expectation("s", null, "1//", null, null)),
+      testCase<AbsoluteUrn>("s:1/p2/", expectation("s", null, "1/p2/", null, null)),
+      testCase<AbsoluteUrn>("s:1//p3", expectation("s", null, "1//p3", null, null)),
+      testCase<RelativeRef>("//", expectation(null, "", "", null, null)),
+      testCase<RelativeRef>("//p3", expectation(null, "p3", "", null, null)),
     )
 
     val pathTestCases = listOf(
-      testCase<PathEmpty>(""),
-      testCase<PathNoScheme>("p1"),
-      testCase<PathNoScheme>("p1/p2/p3"),
-      testCase<PathNoScheme>("p1/"),
-      testCase<PathNoScheme>("p1//"),
-      testCase<PathNoScheme>("p1/p2/"),
-      testCase<PathNoScheme>("p1//p3"),
-      testCase<PathAbsolute>("/"),
-      testCase<PathAbsolute>("/p2"),
-      testCase<PathAbsolute>("/p2/"),
-      testCase<PathAbsolute>("/p2/p3"),
-      testCase<PathRootless>("p:1"),
-      testCase<PathRootless>("p:1/p2/p3"),
-      testCase<PathRootless>("p:1/"),
-      testCase<PathRootless>("p:1//"),
-      testCase<PathRootless>("p:1/p2/"),
-      testCase<PathRootless>("p:1//p3"),
-      testCase<PathAbEmpty>("//"),
-      testCase<PathAbEmpty>("//p3"),
+      testCase<Path>("", listOf(""), true, false),
+      testCase<Path>("p1", listOf("p1"), false, false),
+      testCase<Path>("p1/p2/p3", listOf("p1", "p2", "p3"), false, false),
+      testCase<Path>("p1/", listOf("p1", ""), false, false),
+      testCase<Path>("p1//", listOf("p1", "", ""), false, false),
+      testCase<Path>("p1/p2/", listOf("p1", "p2", ""), false, false),
+      testCase<Path>("p1//p3", listOf("p1", "", "p3"), false, false),
+      testCase<Path>("/", listOf("", ""), false, true),
+      testCase<Path>("/p2", listOf("", "p2"), false, true),
+      testCase<Path>("/p2/", listOf("", "p2", ""), false, true),
+      testCase<Path>("/p2/p3", listOf("", "p2", "p3"), false, true),
+      testCase<Path>("p:1", listOf("p:1"), false, false),
+      testCase<Path>("p:1/p2/p3", listOf("p:1", "p2", "p3"), false, false),
+      testCase<Path>("p:1/", listOf("p:1", ""), false, false),
+      testCase<Path>("p:1//", listOf("p:1", "", ""), false, false),
+      testCase<Path>("p:1/p2/", listOf("p:1", "p2", ""), false, false),
+      testCase<Path>("p:1//p3", listOf("p:1", "", "p3"), false, false),
+      testCase<Path>("//", listOf("", "", ""), false, true),
+      testCase<Path>("//p3", listOf("", "", "p3"), false, true),
     )
 
     withData<UnambiguousUriRefParseTestCase>(
@@ -145,9 +150,12 @@ class ParseInvariantsSpec : StringSpec(
     withData<UnambiguousPathParseTestCase>(
       { t -> "[${t.stringForm}] is parsed to ${t.expectedType.simpleName} by ${t.parser}" },
       pathTestCases.toUnambiguousPathParseTestCases(),
-    ) { (stringForm, expectedType, parser) ->
+    ) { (stringForm, expectedType, expectedSegments, empty, absolute, parser) ->
       val parsed = parser(stringForm).getOrElse { throw it }
       parsed::class.superclasses shouldContain expectedType
+      parsed.segments shouldBe expectedSegments.map { BasicSegment(it) }
+      parsed.isEmpty shouldBe empty
+      parsed.isAbsolute shouldBe absolute
       parsed.toString() shouldBe stringForm
     }
   },
@@ -214,16 +222,33 @@ data class UriReferenceExpectation(
   val fragment: Fragment?,
 )
 
-inline fun <reified T : Path> testCase(stringForm: String) = PathParseTestCase(stringForm, T::class)
+inline fun <reified T : Path> testCase(
+  stringForm: String,
+  expectedSegments: List<String>,
+  shouldBeEmpty: Boolean,
+  shouldBeAbsolute: Boolean,
+) = PathParseTestCase(
+  stringForm,
+  T::class,
+  expectedSegments,
+  shouldBeEmpty,
+  shouldBeAbsolute,
+)
 
 data class PathParseTestCase(
   val stringForm: String,
   val expectedType: KClass<out Path>,
+  val expectedSegments: List<String>,
+  val shouldBeEmpty: Boolean,
+  val shouldBeAbsolute: Boolean,
 )
 
 data class UnambiguousPathParseTestCase(
   val stringForm: String,
   val expectedType: KClass<out Path>,
+  val expectedSegments: List<String>,
+  val shouldBeEmpty: Boolean,
+  val shouldBeAbsolute: Boolean,
   val parser: CharSequenceParser<Exception, Path>,
 )
 
@@ -240,5 +265,8 @@ private fun CharSequenceParser<Exception, Path>.unambiguousPathParseTestCase(
 ) = UnambiguousPathParseTestCase(
   pathParseTestCase.stringForm,
   pathParseTestCase.expectedType,
+  pathParseTestCase.expectedSegments,
+  pathParseTestCase.shouldBeEmpty,
+  pathParseTestCase.shouldBeAbsolute,
   this,
 )

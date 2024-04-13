@@ -10,27 +10,14 @@ import uk.org.lidalia.uri.api.AbsoluteUrl
 import uk.org.lidalia.uri.api.AbsoluteUrn
 import uk.org.lidalia.uri.api.Authority
 import uk.org.lidalia.uri.api.Fragment
-import uk.org.lidalia.uri.api.HierarchicalPart
-import uk.org.lidalia.uri.api.HierarchicalPartPath
-import uk.org.lidalia.uri.api.HierarchicalPartWithAuthority
-import uk.org.lidalia.uri.api.HierarchicalPartWithoutAuthority
 import uk.org.lidalia.uri.api.Host
 import uk.org.lidalia.uri.api.IpLiteral
 import uk.org.lidalia.uri.api.Ipv4Address
 import uk.org.lidalia.uri.api.Path
-import uk.org.lidalia.uri.api.PathAbEmpty
-import uk.org.lidalia.uri.api.PathAbsolute
 import uk.org.lidalia.uri.api.PathAndQuery
-import uk.org.lidalia.uri.api.PathEmpty
-import uk.org.lidalia.uri.api.PathNoScheme
-import uk.org.lidalia.uri.api.PathRootless
 import uk.org.lidalia.uri.api.Port
 import uk.org.lidalia.uri.api.Query
 import uk.org.lidalia.uri.api.RegisteredName
-import uk.org.lidalia.uri.api.RelativePart
-import uk.org.lidalia.uri.api.RelativePartPath
-import uk.org.lidalia.uri.api.RelativePartWithAuthority
-import uk.org.lidalia.uri.api.RelativePartWithoutAuthority
 import uk.org.lidalia.uri.api.RelativeRef
 import uk.org.lidalia.uri.api.Scheme
 import uk.org.lidalia.uri.api.Segment
@@ -40,26 +27,30 @@ import uk.org.lidalia.uri.api.Urn
 import uk.org.lidalia.uri.api.UserInfo
 
 private data class BasicRelativeRef(
-  override val hierarchicalPart: RelativePart,
+  override val authority: Authority?,
+  override val path: Path,
   override val query: Query? = null,
   override val fragment: Fragment? = null,
 ) : RelativeRef {
 
   override val scheme: Nothing? = null
-  override val authority: Authority? = hierarchicalPart.authority
-  override val path: RelativePartPath = hierarchicalPart.path
 
-  override fun toString(): String = hierarchicalPart.toString().append(query).append(fragment)
+  override fun toString(): String = "${authority?.withPrefix().orEmpty()}$path"
+    .append(query)
+    .append(fragment)
 }
 
+private fun Authority.withPrefix() = "//$this"
+
+private fun CharSequence?.orEmpty() = this ?: ""
+
 private data class BasicPathAndQuery(
-  override val hierarchicalPart: PathAbsolute,
+  override val path: Path,
   override val query: Query? = null,
 ) : PathAndQuery {
 
   override val scheme: Nothing? = null
   override val authority: Nothing? = null
-  override val path: PathAbsolute = hierarchicalPart
 
   override fun toString(): String = path.toString().append(query)
 }
@@ -108,34 +99,15 @@ private value class BasicPort(private val value: Int) : Port {
   override fun toString() = value.toString()
 }
 
-private object BasicPathEmpty : PathEmpty {
-  override val authority: Nothing? = null
-  override val path: PathEmpty = this
-  override val hierarchicalPart: PathEmpty = this
-  override val query: Nothing? = null
-  override val fragment: Nothing? = null
-  override val segments: List<Segment> = emptyList()
-
-  override fun toString(): String = ""
-}
-
-private data class BasicPathAbEmpty(
-  override val segments: List<Segment>,
-) : PathAbEmpty {
-
-  override fun toString(): String = segments.joinToString("/")
-}
-
 private data class BasicAbsoluteUrl(
   override val scheme: Scheme,
-  override val hierarchicalPart: HierarchicalPartWithAuthority,
+  override val authority: Authority,
+  override val path: Path,
   override val query: Query?,
 ) : AbsoluteUrl {
-  override val authority: Authority = hierarchicalPart.authority
-  override val path: PathAbEmpty = hierarchicalPart.path
   override val fragment: Nothing? = null
 
-  override fun toString(): String = "$scheme://$hierarchicalPart".append(query)
+  override fun toString(): String = "$scheme://$authority$path".append(query)
 }
 
 private fun String.append(query: Query?): String = if (query == null) this else "$this?$query"
@@ -145,38 +117,35 @@ private fun String.append(fragment: Fragment?): String =
 
 private data class BasicUrl(
   override val scheme: Scheme,
-  override val hierarchicalPart: HierarchicalPartWithAuthority,
+  override val authority: Authority,
+  override val path: Path,
   override val query: Query?,
   override val fragment: Fragment?,
 ) : Url {
-  override val authority: Authority = hierarchicalPart.authority
-  override val path: PathAbEmpty = hierarchicalPart.path
 
-  override fun toString(): String = "$scheme://$hierarchicalPart".append(query).append(fragment)
+  override fun toString(): String = "$scheme://$authority$path".append(query).append(fragment)
 }
 
 private data class BasicUrn(
   override val scheme: Scheme,
-  override val hierarchicalPart: HierarchicalPartWithoutAuthority,
+  override val path: Path,
   override val query: Query?,
   override val fragment: Fragment?,
 ) : Urn {
   override val authority: Nothing? = null
-  override val path: HierarchicalPartPath = hierarchicalPart.path
 
-  override fun toString(): String = "$scheme:$hierarchicalPart".append(query).append(fragment)
+  override fun toString(): String = "$scheme:$path".append(query).append(fragment)
 }
 
 private data class BasicAbsoluteUrn(
   override val scheme: Scheme,
-  override val hierarchicalPart: HierarchicalPartWithoutAuthority,
+  override val path: Path,
   override val query: Query?,
 ) : AbsoluteUrn {
   override val authority: Nothing? = null
-  override val path: HierarchicalPartPath = hierarchicalPart.path
   override val fragment: Nothing? = null
 
-  override fun toString(): String = "$scheme:$hierarchicalPart".append(query)
+  override fun toString(): String = "$scheme:$path".append(query)
 }
 
 internal fun <A : Any, B : A> CharSequenceParser<Exception, A>.castOrFail(
@@ -186,13 +155,6 @@ internal fun <A : Any, B : A> CharSequenceParser<Exception, A>.castOrFail(
   .flatMap {
     f(it)?.right() ?: Exception("$it is of unexpected type ${it::class}").left()
   }
-
-private data class BasicHierarchicalPartWithAuthority(
-  override val authority: Authority,
-  override val path: PathAbEmpty,
-) : HierarchicalPartWithAuthority {
-  override fun toString(): String = "$authority$path"
-}
 
 private data class BasicAuthority(
   override val userInfo: UserInfo?,
@@ -205,47 +167,14 @@ private data class BasicAuthority(
 private val UserInfo?.inAuthority get() = if (this == null) "" else "$this@"
 private val Port?.inAuthority get() = if (this == null) "" else ":$this"
 
-private data class BasicPathAbsolute(
+private data class BasicPath(
   override val segments: List<Segment>,
-) : PathAbsolute {
-  override val hierarchicalPart: PathAbsolute = this
-  override val query: Nothing? = null
-  override val fragment: Nothing? = null
+) : Path {
+  init {
+    require(segments.isNotEmpty())
+  }
 
   override fun toString(): String = segments.joinToString("/")
-}
-
-private data class BasicPathRootless(
-  override val segments: List<Segment>,
-) : PathRootless {
-  override fun toString(): String = segments.joinToString("/")
-}
-
-private data class BasicPathNoScheme(
-  override val segments: List<Segment>,
-) : PathNoScheme {
-  override fun toString(): String = segments.joinToString("/")
-
-  override val path: PathNoScheme = this
-  override val hierarchicalPart: PathNoScheme = this
-  override val query: Nothing? = null
-  override val fragment: Nothing? = null
-}
-
-private data class BasicRelativePartWithAuthority(
-  override val authority: Authority,
-  override val path: PathAbEmpty,
-) : RelativePartWithAuthority {
-  override val query: Nothing? = null
-  override val fragment: Nothing? = null
-
-  override fun toString(): String = "//$authority$path"
-}
-
-private data class BasicHierarchicalPartWithoutAuthority(
-  override val path: HierarchicalPartPath,
-) : HierarchicalPartWithoutAuthority {
-  override fun toString(): String = path.toString()
 }
 
 private fun MatchGroup.toScheme() = BasicScheme(value)
@@ -254,38 +183,13 @@ private fun MatchGroup.toQuery() = BasicQuery(value)
 
 private fun MatchGroup.toFragment() = BasicFragment(value)
 
-private fun MatchResult.extractHierarchicalPart(): HierarchicalPart {
+private fun MatchResult.extractHierarchicalPart(): Pair<Authority?, Path> {
   val authority = extractAuthorityOrNull()
   val pathStr = groups["path"]!!.value
-  return if (authority == null) {
-    pathStr.toHierarchicalPartWithoutAuthority()
-  } else {
-    val segments = pathStr.split('/')
-      .map(String::toSegment)
-    val path: PathAbEmpty = when {
-      pathStr.isEmpty() -> BasicPathEmpty
-      pathStr.startsWith("//") -> BasicPathAbEmpty(segments)
-      else -> BasicPathAbsolute(segments)
-    }
-    return BasicHierarchicalPartWithAuthority(authority, path)
-  }
-}
-
-private fun MatchResult.extractRelativePart(): RelativePart {
-  val authority = extractAuthorityOrNull()
-  val pathStr = groups["path"]!!.value
-  return if (authority == null) {
-    pathStr.toRelativePartWithoutAuthority()
-  } else {
-    val segments = pathStr.split('/')
-      .map(String::toSegment)
-    val path: PathAbEmpty = when {
-      pathStr.isEmpty() -> BasicPathEmpty
-      pathStr.startsWith("//") -> BasicPathAbEmpty(segments)
-      else -> BasicPathAbsolute(segments)
-    }
-    return BasicRelativePartWithAuthority(authority, path)
-  }
+  val segments = pathStr.split('/')
+    .map(String::toSegment)
+  val path = BasicPath(segments)
+  return authority to path
 }
 
 @JvmInline
@@ -294,31 +198,6 @@ value class BasicSegment(private val value: String) : Segment, CharSequence by v
 }
 
 private fun String.toSegment() = BasicSegment(this)
-
-private fun String.toHierarchicalPartWithoutAuthority(): HierarchicalPartWithoutAuthority {
-  val segments = this.split('/')
-    .map(String::toSegment)
-  return when {
-    this.isEmpty() -> BasicPathEmpty
-    this.startsWith("//") -> BasicHierarchicalPartWithoutAuthority(BasicPathAbEmpty(segments))
-    this.startsWith("/") -> BasicPathAbsolute(segments)
-    !segments.first().contains(":") ->
-      BasicHierarchicalPartWithoutAuthority(BasicPathNoScheme(segments))
-    else -> BasicHierarchicalPartWithoutAuthority(BasicPathRootless(segments))
-  }
-}
-
-private fun String.toRelativePartWithoutAuthority(): RelativePartWithoutAuthority = if (isEmpty()) {
-  BasicPathEmpty
-} else {
-  val segments = split('/')
-    .map(String::toSegment)
-  if (segments.first().isEmpty()) {
-    BasicPathAbsolute(segments)
-  } else {
-    BasicPathNoScheme(segments)
-  }
-}
 
 private fun MatchGroup.toUserInfo() = BasicUserInfo(value)
 
@@ -369,13 +248,7 @@ private val pathRegex = """[^#?]*""".toRegex()
 internal fun parsePath(input: CharSequence): Either<Exception, Path> {
   val segments = input.split('/')
     .map(String::toSegment)
-  return when {
-    input.isEmpty() -> BasicPathEmpty
-    input.startsWith("//") -> BasicPathAbEmpty(segments)
-    input.startsWith("/") -> BasicPathAbsolute(segments)
-    !segments.first().contains(":") -> BasicPathNoScheme(segments)
-    else -> BasicPathRootless(segments)
-  }.right()
+  return BasicPath(segments).right()
 }
 
 private val schemeRegex = """[a-zA-Z][a-zA-Z0-9+\-.]*""".toRegex()
@@ -409,29 +282,26 @@ internal fun parseUriReference(input: CharSequence): Either<Exception, UriRefere
     val scheme = result.groups["scheme"]?.toScheme()
     val query = result.groups["query"]?.toQuery()
     val fragment = result.groups["fragment"]?.toFragment()
+    val (authority, path) = result.extractHierarchicalPart()
     if (scheme != null) {
-      when (val hierarchicalPart = result.extractHierarchicalPart()) {
-        is HierarchicalPartWithAuthority -> if (fragment == null) {
-          BasicAbsoluteUrl(scheme, hierarchicalPart, query)
+      if (authority != null) {
+        if (fragment == null) {
+          BasicAbsoluteUrl(scheme, authority, path, query)
         } else {
-          BasicUrl(scheme, hierarchicalPart, query, fragment)
+          BasicUrl(scheme, authority, path, query, fragment)
         }
-        is HierarchicalPartWithoutAuthority -> if (fragment == null) {
-          BasicAbsoluteUrn(scheme, hierarchicalPart, query)
+      } else {
+        if (fragment == null) {
+          BasicAbsoluteUrn(scheme, path, query)
         } else {
-          BasicUrn(scheme, hierarchicalPart, query, fragment)
+          BasicUrn(scheme, path, query, fragment)
         }
       }
     } else {
-      val relativePart = result.extractRelativePart()
-      if (query != null || fragment != null) {
-        if (fragment == null && relativePart is PathAbsolute) {
-          BasicPathAndQuery(relativePart, query)
-        } else {
-          BasicRelativeRef(relativePart, query, fragment)
-        }
+      if (fragment == null && (path.isAbsolute)) {
+        BasicPathAndQuery(path, query)
       } else {
-        relativePart
+        BasicRelativeRef(authority, path, query, fragment)
       }
     }.right()
   }
