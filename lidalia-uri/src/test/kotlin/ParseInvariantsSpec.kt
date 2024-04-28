@@ -166,6 +166,7 @@ private val <T : Any> KClass<T>.parser
   get() =
     (companionObjectInstance ?: objectInstance) as CharSequenceParser<Exception, T>?
 
+@Suppress("UNCHECKED_CAST")
 fun List<UriReferenceParseTestCase>.toUnambiguousUriRefParseTestCases() = flatMap { testCase ->
   (testCase.expectedType.allSuperclasses + testCase.expectedType).mapNotNull { superClass ->
     val parser = superClass.parser as CharSequenceParser<Exception, UriReference>?
@@ -252,6 +253,7 @@ data class UnambiguousPathParseTestCase(
   val parser: CharSequenceParser<Exception, Path>,
 )
 
+@Suppress("UNCHECKED_CAST")
 fun List<PathParseTestCase>.toUnambiguousPathParseTestCases() = flatMap { testCase ->
   (testCase.expectedType.allSuperclasses + testCase.expectedType).mapNotNull { superClass ->
     (superClass.parser as CharSequenceParser<Exception, Path>?)?.unambiguousPathParseTestCase(
