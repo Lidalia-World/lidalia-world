@@ -11,6 +11,9 @@ import uk.org.lidalia.uri.implementation.parseScheme
 import uk.org.lidalia.uri.implementation.parseUriReference
 
 sealed interface UriReference {
+
+  fun resolve(toResolve: UriReference): UriReference
+
   val scheme: Scheme?
   val authority: Authority?
   val path: Path
@@ -99,6 +102,9 @@ interface RegisteredName : Host, PctEncoded
 
 interface Port
 
+/**
+ * A Path consists of 1..* Segments
+ */
 interface Path {
 
   val segments: List<Segment>

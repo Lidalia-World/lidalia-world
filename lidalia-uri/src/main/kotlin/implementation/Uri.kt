@@ -35,6 +35,10 @@ private data class BasicRelativeRef(
 
   override val scheme: Nothing? = null
 
+  override fun resolve(toResolve: UriReference): UriReference {
+    return toResolve
+  }
+
   override fun toString(): String = "${authority?.withPrefix().orEmpty()}$path"
     .append(query)
     .append(fragment)
@@ -53,6 +57,10 @@ private data class BasicPathAndQuery(
   override val authority: Nothing? = null
 
   override fun toString(): String = path.toString().append(query)
+
+  override fun resolve(toResolve: UriReference): UriReference {
+    return toResolve
+  }
 }
 
 @JvmInline
@@ -108,6 +116,10 @@ private data class BasicAbsoluteUrl(
   override val fragment: Nothing? = null
 
   override fun toString(): String = "$scheme://$authority$path".append(query)
+
+  override fun resolve(toResolve: UriReference): UriReference {
+    return toResolve
+  }
 }
 
 private fun String.append(query: Query?): String = if (query == null) this else "$this?$query"
@@ -124,6 +136,10 @@ private data class BasicUrl(
 ) : Url {
 
   override fun toString(): String = "$scheme://$authority$path".append(query).append(fragment)
+
+  override fun resolve(toResolve: UriReference): UriReference {
+    return toResolve
+  }
 }
 
 private data class BasicUrn(
@@ -135,6 +151,10 @@ private data class BasicUrn(
   override val authority: Nothing? = null
 
   override fun toString(): String = "$scheme:$path".append(query).append(fragment)
+
+  override fun resolve(toResolve: UriReference): UriReference {
+    return toResolve
+  }
 }
 
 private data class BasicAbsoluteUrn(
@@ -146,6 +166,10 @@ private data class BasicAbsoluteUrn(
   override val fragment: Nothing? = null
 
   override fun toString(): String = "$scheme:$path".append(query)
+
+  override fun resolve(toResolve: UriReference): UriReference {
+    return toResolve
+  }
 }
 
 internal fun <A : Any, B : A> CharSequenceParser<Exception, A>.castOrFail(
