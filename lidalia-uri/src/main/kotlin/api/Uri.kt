@@ -3,12 +3,15 @@ package uk.org.lidalia.uri.api
 import arrow.core.Either
 import uk.org.lidalia.lang.CharSequenceParser
 import uk.org.lidalia.uri.implementation.castOrFail
+import uk.org.lidalia.uri.implementation.emptyPath
+import uk.org.lidalia.uri.implementation.emptySegment
 import uk.org.lidalia.uri.implementation.parseAuthority
 import uk.org.lidalia.uri.implementation.parseFragment
 import uk.org.lidalia.uri.implementation.parsePath
 import uk.org.lidalia.uri.implementation.parseQuery
 import uk.org.lidalia.uri.implementation.parseScheme
 import uk.org.lidalia.uri.implementation.parseUriReference
+import uk.org.lidalia.uri.implementation.rootPath
 
 sealed interface UriReference {
 
@@ -115,6 +118,10 @@ interface Path {
 
   companion object : CharSequenceParser<Exception, Path> {
     override fun invoke(input: CharSequence): Either<Exception, Path> = parsePath(input)
+
+    val empty: Path = emptyPath
+
+    val root: Path = rootPath
   }
 }
 
@@ -123,7 +130,12 @@ fun String.toPath(): Either<Exception, Path> = Path(this)
 /**
  * A Segment consists of `*pchar`
  */
-interface Segment : PctEncoded
+interface Segment : PctEncoded {
+
+  companion object {
+    val empty: Segment = emptySegment
+  }
+}
 
 /**
  * A Query consists of `*( pchar / "/" / "?" )`

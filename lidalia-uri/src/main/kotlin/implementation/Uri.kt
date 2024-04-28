@@ -217,9 +217,15 @@ private fun MatchResult.extractHierarchicalPart(): Pair<Authority?, Path> {
 }
 
 @JvmInline
-value class BasicSegment(private val value: String) : Segment, CharSequence by value {
+internal value class BasicSegment(private val value: String) : Segment, CharSequence by value {
   override fun toString(): String = value
 }
+
+internal val emptySegment: Segment = BasicSegment("")
+
+internal val emptyPath: Path = BasicPath(listOf(emptySegment))
+
+internal val rootPath: Path = BasicPath(listOf(emptySegment, emptySegment))
 
 private fun String.toSegment() = BasicSegment(this)
 
