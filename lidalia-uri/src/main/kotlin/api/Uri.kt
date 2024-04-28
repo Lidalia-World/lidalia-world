@@ -85,6 +85,8 @@ interface Authority {
 
 fun String.toAuthority(): Either<Exception, Authority> = Authority(this)
 
+interface PctEncoded : CharSequence
+
 interface UserInfo
 
 sealed interface Host
@@ -93,7 +95,7 @@ interface IpLiteral : Host
 
 interface Ipv4Address : Host
 
-interface RegisteredName : Host
+interface RegisteredName : Host, PctEncoded
 
 interface Port
 
@@ -112,9 +114,15 @@ interface Path {
 
 fun String.toPath(): Either<Exception, Path> = Path(this)
 
-interface Segment : CharSequence
+/**
+ * A Segment consists of `*pchar`
+ */
+interface Segment : PctEncoded
 
-interface Query : CharSequence {
+/**
+ * A Query consists of `*( pchar / "/" / "?" )`
+ */
+interface Query : PctEncoded {
   companion object : CharSequenceParser<Exception, Query> {
     override operator fun invoke(input: CharSequence): Either<Exception, Query> = parseQuery(input)
   }
@@ -122,7 +130,10 @@ interface Query : CharSequence {
 
 fun String.toQuery() = Query(this)
 
-interface Fragment : CharSequence {
+/**
+ * A Fragment consists of `*( pchar / "/" / "?" )`
+ */
+interface Fragment : PctEncoded {
   companion object : CharSequenceParser<Exception, Fragment> {
     override operator fun invoke(input: CharSequence): Either<Exception, Fragment> =
       parseFragment(input)
