@@ -1,3 +1,12 @@
+pluginManagement {
+  repositories {
+    gradlePluginPortal()
+    maven {
+      url = uri("https://public.mavenrepo.lidalia.org.uk/releases")
+    }
+  }
+}
+
 plugins {
   id("org.gradle.toolchains.foojay-resolver-convention") version "0.8.0"
 }

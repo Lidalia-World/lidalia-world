@@ -1,5 +1,6 @@
 plugins {
   id("lidalia.world.kotlin-library-conventions")
+  alias(libs.plugins.ideaext)
 }
 
 dependencies {
@@ -11,4 +12,8 @@ dependencies {
   testImplementation(libs.kotlin.reflect)
   testImplementation(libs.kotest.framework.datatest)
   testImplementation(libs.kotest.assertions.core)
+}
+
+idea {
+  setPackagePrefix("uk.org.lidalia.uri")
 }
