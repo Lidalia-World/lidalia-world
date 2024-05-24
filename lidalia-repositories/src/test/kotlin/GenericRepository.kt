@@ -18,11 +18,11 @@ import java.util.concurrent.ConcurrentHashMap
 open class GenericRepository<
   EntityId : Id<EntityId>,
   EntityIdentifier : Identifier<EntityId>,
-  E : Entity<EntityId>,
-  P : UnpersistedEntity<EntityId, E>,
+  E : Entity<EntityId, EntityMetadata>,
+  P : UnpersistedEntity<EntityId, E, EntityMetadata>,
   >(
   private val idGenerator: () -> EntityId,
-) : MutableRepository<EntityId, EntityIdentifier, E, P> {
+) : MutableRepository<EntityId, EntityIdentifier, E, EntityMetadata, P> {
 
   private val store = ConcurrentHashMap<EntityId, E>()
 

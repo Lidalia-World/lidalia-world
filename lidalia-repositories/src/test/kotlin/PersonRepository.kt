@@ -19,6 +19,7 @@ class PersonRepository : MutableRepository<
   PersonId,
   PersonIdentifier,
   Person,
+  EntityMetadata,
   UnpersistedPerson,
   > {
 
@@ -88,9 +89,9 @@ data class PersonId(
 }
 
 data class EntityMetadata(
-  override val created: Instant,
+  val created: Instant,
   override val versionId: VersionId,
-  override val lastUpdated: Instant,
+  val lastUpdated: Instant,
 ) : Metadata
 
 data class UuidVersionId(
@@ -99,14 +100,14 @@ data class UuidVersionId(
 
 data class Person(
   override val id: PersonId,
-  override val metadata: Metadata,
+  override val metadata: EntityMetadata,
   val name: String,
-) : Entity<PersonId>, PersonIdentifier
+) : Entity<PersonId, EntityMetadata>, PersonIdentifier
 
 data class UnpersistedPerson(
   val name: String,
-) : UnpersistedEntity<PersonId, Person> {
-  override fun toEntity(id: PersonId, metadata: Metadata): Person = Person(
+) : UnpersistedEntity<PersonId, Person, EntityMetadata> {
+  override fun toEntity(id: PersonId, metadata: EntityMetadata): Person = Person(
     id = id,
     name = name,
     metadata = metadata,

@@ -6,14 +6,15 @@ import java.time.Instant
 interface Repository<
   EntityId : Id<EntityId>,
   EntityIdentifier : Identifier<EntityId>,
-  out E : Entity<EntityId>,
+  out M : Metadata,
+  out E : Entity<EntityId, M>,
   > {
 
   fun get(identifier: EntityIdentifier): E?
 
   @Suppress("UNCHECKED_CAST")
   fun materialise(identifier: EntityIdentifier): E? = when (identifier) {
-    is Entity<*> -> identifier as E
+    is Entity<*, *> -> identifier as E
     else -> get(identifier)
   }
 }
@@ -21,9 +22,10 @@ interface Repository<
 interface MutableRepository<
   EntityId : Id<EntityId>,
   EntityIdentifier : Identifier<EntityId>,
-  E : Entity<EntityId>,
-  P : UnpersistedEntity<EntityId, E>,
-  > : Repository<EntityId, EntityIdentifier, E> {
+  E : Entity<EntityId, M>,
+  M : Metadata,
+  P : UnpersistedEntity<EntityId, E, M>,
+  > : Repository<EntityId, EntityIdentifier, M, E> {
   fun create(params: P): E
 
   fun put(
@@ -43,24 +45,27 @@ interface Id<out EntityId : Id<EntityId>> : Identifier<EntityId> {
   override val id: EntityId
 }
 
-interface Entity<out EntityId : Id<EntityId>> : Identifier<EntityId> {
-  val metadata: Metadata
+interface Entity<out EntityId : Id<EntityId>, out M : Metadata> : Identifier<EntityId> {
+  val metadata: M
 }
 
 interface VersionId
 
+@Suppress("unused")
 interface EntityVersion<out EntityId : Id<EntityId>> {
   val entityId: EntityId
   val versionId: VersionId
   val timestamp: Instant
 }
 
-interface UnpersistedEntity<EntityId : Id<EntityId>, E : Entity<EntityId>> {
-  fun toEntity(id: EntityId, metadata: Metadata): E
+interface UnpersistedEntity<
+  EntityId : Id<EntityId>,
+  E : Entity<EntityId, M>,
+  M : Metadata,
+  > {
+  fun toEntity(id: EntityId, metadata: M): E
 }
 
 interface Metadata {
-  val created: Instant
   val versionId: VersionId
-  val lastUpdated: Instant
 }
