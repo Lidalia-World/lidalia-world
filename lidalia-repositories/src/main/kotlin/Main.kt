@@ -27,7 +27,7 @@ fun crud(repository: MutableRepository<PersonId, PersonIdentifier, Person, Unper
   val updated = repository.put(
     person.id,
     UnpersistedPerson("Bob"),
-    person.versionId,
+    person.metadata.versionId,
   ).getOrNull()
 
   println("updated == repository.get(person): " + (updated == repository.get(person)))

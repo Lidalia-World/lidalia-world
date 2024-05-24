@@ -44,9 +44,7 @@ interface Id<out EntityId : Id<EntityId>> : Identifier<EntityId> {
 }
 
 interface Entity<out EntityId : Id<EntityId>> : Identifier<EntityId> {
-  val created: Instant
-  val versionId: VersionId
-  val lastUpdated: Instant
+  val metadata: Metadata
 }
 
 interface VersionId
@@ -58,10 +56,11 @@ interface EntityVersion<out EntityId : Id<EntityId>> {
 }
 
 interface UnpersistedEntity<EntityId : Id<EntityId>, E : Entity<EntityId>> {
-  fun toEntity(
-    id: EntityId,
-    created: Instant,
-    lastUpdated: Instant,
-    versionId: VersionId,
-  ): E
+  fun toEntity(id: EntityId, metadata: Metadata): E
+}
+
+interface Metadata {
+  val created: Instant
+  val versionId: VersionId
+  val lastUpdated: Instant
 }

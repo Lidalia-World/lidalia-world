@@ -9,6 +9,7 @@ import uk.org.lidalia.repositories.Identifier
 import uk.org.lidalia.repositories.MutableRepository
 import uk.org.lidalia.repositories.UnpersistedEntity
 import uk.org.lidalia.repositories.VersionId
+import uk.org.lidalia.repositories.person.EntityMetadata
 import uk.org.lidalia.repositories.person.UuidVersionId
 import java.time.Instant
 import java.util.UUID
@@ -22,6 +23,7 @@ open class GenericRepository<
   >(
   private val idGenerator: () -> EntityId,
 ) : MutableRepository<EntityId, EntityIdentifier, E, P> {
+
   private val store = ConcurrentHashMap<EntityId, E>()
 
   override fun get(identifier: EntityIdentifier): E? = store[identifier.id]
@@ -30,10 +32,12 @@ open class GenericRepository<
     val id = idGenerator()
     val now = Instant.now()
     val entity = params.toEntity(
-      id,
-      created = now,
-      lastUpdated = now,
-      UuidVersionId(UUID.randomUUID()),
+      id = id,
+      metadata = EntityMetadata(
+        created = now,
+        lastUpdated = now,
+        versionId = UuidVersionId(UUID.randomUUID()),
+      ),
     )
     store[id] = entity
     return entity
@@ -46,20 +50,22 @@ open class GenericRepository<
   ): Either<Exception, E> {
     val newVersionId = UuidVersionId(UUID.randomUUID())
     val result = store.compute(id) { _, existing ->
-      if (existing == null || previousVersionId == existing.versionId) {
+      if (existing == null || previousVersionId == existing.metadata.versionId) {
         val now = Instant.now()
         entity.toEntity(
           id = id,
-          created = existing?.created ?: now,
-          lastUpdated = now,
-          versionId = newVersionId,
+          metadata = EntityMetadata(
+            created = existing?.metadata?.created ?: now,
+            lastUpdated = now,
+            versionId = newVersionId,
+          ),
         )
       } else {
         existing
       }
     }
 
-    return if (result?.versionId == newVersionId) {
+    return if (result?.metadata?.versionId == newVersionId) {
       result.right()
     } else {
       Exception("entity has been altered since version $previousVersionId").left()

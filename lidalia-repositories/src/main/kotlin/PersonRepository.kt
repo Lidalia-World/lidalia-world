@@ -6,6 +6,7 @@ import arrow.core.right
 import uk.org.lidalia.repositories.Entity
 import uk.org.lidalia.repositories.Id
 import uk.org.lidalia.repositories.Identifier
+import uk.org.lidalia.repositories.Metadata
 import uk.org.lidalia.repositories.MutableRepository
 import uk.org.lidalia.repositories.UnpersistedEntity
 import uk.org.lidalia.repositories.VersionId
@@ -14,11 +15,31 @@ import java.time.Instant
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 
-class PersonRepository : MutableRepository<PersonId, PersonIdentifier, Person, UnpersistedPerson> {
+class PersonRepository : MutableRepository<
+  PersonId,
+  PersonIdentifier,
+  Person,
+  UnpersistedPerson,
+  > {
 
   private val store = ConcurrentHashMap<PersonId, Person>()
 
   override fun get(identifier: PersonIdentifier): Person? = store[identifier.id]
+
+  override fun create(params: UnpersistedPerson): Person {
+    val id = PersonId(UUID.randomUUID())
+    val now = Instant.now()
+    val entity = params.toEntity(
+      id = id,
+      metadata = EntityMetadata(
+        created = now,
+        lastUpdated = now,
+        versionId = UuidVersionId(UUID.randomUUID()),
+      ),
+    )
+    store[id] = entity
+    return entity
+  }
 
   override fun put(
     id: PersonId,
@@ -27,20 +48,22 @@ class PersonRepository : MutableRepository<PersonId, PersonIdentifier, Person, U
   ): Either<Exception, Person> {
     val newVersionId = UuidVersionId(UUID.randomUUID())
     val result = store.compute(id) { _, existing ->
-      if (existing == null || previousVersionId == existing.versionId) {
+      if (existing == null || previousVersionId == existing.metadata.versionId) {
         val now = Instant.now()
         entity.toEntity(
           id = id,
-          created = existing?.created ?: now,
-          lastUpdated = now,
-          versionId = newVersionId,
+          metadata = EntityMetadata(
+            created = existing?.metadata?.created ?: now,
+            lastUpdated = now,
+            versionId = newVersionId,
+          ),
         )
       } else {
         existing
       }
     }
 
-    return if (result?.versionId == newVersionId) {
+    return if (result?.metadata?.versionId == newVersionId) {
       result.right()
     } else {
       Exception("entity has been altered since version $previousVersionId").left()
@@ -49,19 +72,6 @@ class PersonRepository : MutableRepository<PersonId, PersonIdentifier, Person, U
 
   override fun delete(identifier: PersonIdentifier) {
     store.remove(identifier.id)
-  }
-
-  override fun create(params: UnpersistedPerson): Person {
-    val id = PersonId(UUID.randomUUID())
-    val now = Instant.now()
-    val entity = params.toEntity(
-      id,
-      created = now,
-      lastUpdated = now,
-      UuidVersionId(UUID.randomUUID()),
-    )
-    store[id] = entity
-    return entity
   }
 }
 
@@ -77,31 +87,28 @@ data class PersonId(
   override val id: PersonId = this
 }
 
+data class EntityMetadata(
+  override val created: Instant,
+  override val versionId: VersionId,
+  override val lastUpdated: Instant,
+) : Metadata
+
 data class UuidVersionId(
   private val uuid: UUID,
 ) : VersionId
 
 data class Person(
   override val id: PersonId,
-  override val versionId: VersionId,
-  override val created: Instant,
-  override val lastUpdated: Instant,
+  override val metadata: Metadata,
   val name: String,
 ) : Entity<PersonId>, PersonIdentifier
 
 data class UnpersistedPerson(
   val name: String,
 ) : UnpersistedEntity<PersonId, Person> {
-  override fun toEntity(
-    id: PersonId,
-    created: Instant,
-    lastUpdated: Instant,
-    versionId: VersionId,
-  ): Person = Person(
+  override fun toEntity(id: PersonId, metadata: Metadata): Person = Person(
     id = id,
-    versionId = versionId,
     name = name,
-    created = created,
-    lastUpdated = lastUpdated,
+    metadata = metadata,
   )
 }
