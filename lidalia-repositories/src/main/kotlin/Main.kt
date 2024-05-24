@@ -19,13 +19,26 @@ fun crud(repository: MutableRepository<PersonId, PersonIdentifier, Person, Unper
 
   println("person == repository.get(person): " + (person == repository.get(person)))
   println("person == repository.get(person.id): " + (person == repository.get(person.id)))
+  println("person == repository.materialise(person): " + (person == repository.materialise(person)))
+  println(
+    "person == repository.materialise(person.id): " + (person == repository.materialise(person.id)),
+  )
 
-  val newName = person.copy(name = "Bob")
-  val updated = repository.put(newName)
+  val updated = repository.put(
+    person.id,
+    UnpersistedPerson("Bob"),
+    person.versionId,
+  ).getOrNull()
 
-  println("updated == newName: " + (updated == newName))
   println("updated == repository.get(person): " + (updated == repository.get(person)))
   println("updated == repository.get(person.id): " + (updated == repository.get(person.id)))
+  println(
+    "person == repository.materialise(person): " + (updated == repository.materialise(person)),
+  )
+  println(
+    "person == repository.materialise(person.id): " +
+      (updated == repository.materialise(person.id)),
+  )
 
   repository.delete(person)
 
