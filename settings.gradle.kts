@@ -15,8 +15,8 @@ rootProject.name = "lidalia-world"
 
 include("lidalia-kotlin-lang")
 include("lidalia-uri")
-include("lidalia-repositories")
 createProject("./encoding/core", "lidalia-encoding-core")
+createProject("./lidalia-repositories/api", "lidalia-repositories-api")
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
