@@ -4,14 +4,14 @@ import arrow.core.getOrElse
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import uk.org.lidalia.repositories.person.PersonRepository
+import uk.org.lidalia.repositories.person.InMemoryPersonRepository
 import uk.org.lidalia.repositories.person.PersonRepository2
 import uk.org.lidalia.repositories.person.UnpersistedPerson
 
 class RepositorySpec : StringSpec({
 
   listOf(
-    PersonRepository(),
+    InMemoryPersonRepository(),
     PersonRepository2(),
   ).forEach { repository ->
     "can do a round trip for ${repository::class.simpleName}" {

@@ -15,13 +15,15 @@ import java.time.Instant
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 
-class PersonRepository : MutableRepository<
+interface PersonRepository : MutableRepository<
   PersonId,
   PersonIdentifier,
   Person,
   EntityMetadata,
   UnpersistedPerson,
-  > {
+  >
+
+class InMemoryPersonRepository : PersonRepository {
 
   private val store = ConcurrentHashMap<PersonId, Person>()
 
@@ -76,7 +78,7 @@ class PersonRepository : MutableRepository<
   }
 }
 
-class PersonRepository2 : GenericRepository<PersonId, PersonIdentifier, Person, UnpersistedPerson>(
+class PersonRepository2 : PersonRepository, GenericRepository<PersonId, PersonIdentifier, Person, UnpersistedPerson>(
   { PersonId(UUID.randomUUID()) },
 )
 
