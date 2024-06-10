@@ -17,7 +17,7 @@ arrow-optics = { module = "io.arrow-kt:arrow-optics" }
 arrow-optics-reflect = { module = "io.arrow-kt:arrow-optics-reflect" }
 arrow-optics-ksp-plugin = { module = "io.arrow-kt:arrow-optics-ksp-plugin" }
 
-kotest-bom = { module = "io.kotest:kotest-bom", version = "5.9.0" }
+kotest-bom = { module = "io.kotest:kotest-bom", version = "5.9.1" }
 kotest-common = { module = "io.kotest:kotest-common" }
 kotest-extensions = { module = "io.kotest:kotest-extensions" }
 kotest-property = { module = "io.kotest:kotest-property" }
