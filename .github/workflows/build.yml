@@ -30,12 +30,12 @@ jobs:
           endpoint: "mahoney266/lidalia-world-gha"
           install: true
 
-      - uses: docker/build-push-action@v5
+      - uses: docker/build-push-action@v6
         with:
           target: build-output
           outputs: 'type=local,dest=build'
 
-      - uses: docker/build-push-action@v5
+      - uses: docker/build-push-action@v6
         if: ${{ hashFiles('build/failed') != '' }}
 
       - name: Publish Unit Test Results
