@@ -15,6 +15,7 @@ rootProject.name = "lidalia-world"
 
 include("lidalia-kotlin-lang")
 include("lidalia-uri")
+include("example-app")
 createProject("./encoding/core", "lidalia-encoding-core")
 createProject("./lidalia-repositories/api", "lidalia-repositories-api")
 createProject("./lidalia-repositories/postgres", "lidalia-repositories-postgres")

@@ -3,13 +3,13 @@ package uk.org.lidalia.repositories.person
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
-import uk.org.lidalia.repositories.Entity
-import uk.org.lidalia.repositories.Id
-import uk.org.lidalia.repositories.Identifier
-import uk.org.lidalia.repositories.Metadata
-import uk.org.lidalia.repositories.MutableRepository
-import uk.org.lidalia.repositories.UnpersistedEntity
-import uk.org.lidalia.repositories.VersionId
+import uk.org.lidalia.repositories.api.Entity
+import uk.org.lidalia.repositories.api.Id
+import uk.org.lidalia.repositories.api.Identifier
+import uk.org.lidalia.repositories.api.Metadata
+import uk.org.lidalia.repositories.api.MutableRepository
+import uk.org.lidalia.repositories.api.UnpersistedEntity
+import uk.org.lidalia.repositories.api.VersionId
 import uk.org.lidalia.repositories.generic.GenericRepository
 import java.time.Instant
 import java.util.UUID
@@ -78,9 +78,11 @@ class InMemoryPersonRepository : PersonRepository {
   }
 }
 
-class PersonRepository2 : PersonRepository, GenericRepository<PersonId, PersonIdentifier, Person, UnpersistedPerson>(
-  { PersonId(UUID.randomUUID()) },
-)
+class PersonRepository2 :
+  PersonRepository,
+  GenericRepository<PersonId, PersonIdentifier, Person, UnpersistedPerson>(
+    { PersonId(UUID.randomUUID()) },
+  )
 
 sealed interface PersonIdentifier : Identifier<PersonId>
 
