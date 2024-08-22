@@ -17,6 +17,7 @@ include("lidalia-kotlin-lang")
 include("lidalia-uri")
 createProject("./encoding/core", "lidalia-encoding-core")
 createProject("./lidalia-repositories/api", "lidalia-repositories-api")
+createProject("./lidalia-repositories/postgres", "lidalia-repositories-postgres")
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 

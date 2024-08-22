@@ -6,8 +6,9 @@ plugins {
 dependencies {
   api(platform(libs.arrow.stack))
   api(libs.arrow.core)
+  api(project(":lidalia-repositories-api"))
 }
 
 idea {
-  setPackagePrefix("uk.org.lidalia.repositories.api")
+  setPackagePrefix("uk.org.lidalia.repositories.postgres")
 }

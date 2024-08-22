@@ -1,4 +1,4 @@
-package uk.org.lidalia.repositories
+package uk.org.lidalia.repositories.api
 
 import arrow.core.Either
 import java.time.Instant
