@@ -7,7 +7,7 @@ import java.io.OutputStream
 import java.math.BigInteger
 import java.nio.ByteBuffer
 import java.nio.charset.Charset
-import java.security.SecureRandom
+import kotlin.random.Random
 import kotlin.text.Charsets.UTF_8
 
 class Bytes private constructor(
@@ -39,23 +39,38 @@ class Bytes private constructor(
 
   override fun get(index: Int): Byte = bytes[fromIndex + index]
 
-  fun take(number: Int): Bytes = subList(0, number)
+  fun take(number: Int): Bytes = unsafeSublist(0, minOf(number, size))
 
-  fun drop(number: Int): Bytes = subList(number, size)
+  fun drop(number: Int): Bytes = unsafeSublist(minOf(number, size), size)
 
   fun split(index: Int): Pair<Bytes, Bytes> = take(index) to drop(index)
 
+  /**
+   * Returns an equivalent Bytes that has no reference to the original's byte array, allowing the
+   * original's byte array to be garbage collected.
+   *
+   * For instance, if you had a `Bytes` representing 100MB of data, and did a `take(1024)` to return
+   * the first kB, the returned `Bytes` would still hold a reference to the 100MB byte array.
+   * Calling `take(1024).detach()` would give you a copy of those bytes, allowing the original 100MB
+   * to be garbage collected.
+   *
+   * @return an equivalent Bytes that has no reference to the original's byte array
+   */
   fun detach(): Bytes = if (bytes.size == size) {
     this
   } else {
     unsafe(array())
   }
 
-  override fun subList(fromIndex: Int, toIndex: Int): Bytes = when {
+  override fun subList(fromIndex: Int, toIndex: Int): Bytes {
+    validate(fromIndex, toIndex)
+    return unsafeSublist(fromIndex, toIndex)
+  }
+
+  private fun unsafeSublist(fromIndex: Int, toIndex: Int) = when {
     fromIndex == toIndex -> empty
     fromIndex == 0 && toIndex == size -> this
     else -> {
-      validate(fromIndex, toIndex)
       Bytes(
         bytes = bytes,
         fromIndex = this.fromIndex + fromIndex,
@@ -115,7 +130,7 @@ class Bytes private constructor(
     operator fun invoke(vararg elements: Bytes): Bytes = invoke(elements.asList())
 
     // TODO this could be more efficient with no copying by storing the List<Bytes> as the
-    // state of the Bytes object and doing the maths to haul data out of them as needed
+    //  state of the Bytes object and doing the maths to haul data out of them as needed
     operator fun invoke(elements: Iterable<Bytes>): Bytes {
       val length = elements.sumOf { obj: Bytes -> obj.size }
       val bytes = ByteArray(length)
@@ -144,13 +159,8 @@ class Bytes private constructor(
      */
     private fun unsafe(bytes: ByteArray): Bytes = Bytes(bytes, 0, bytes.size)
 
-    private val secureRandom = SecureRandom()
-
     @JvmOverloads
-    fun random(length: Int = secureRandom.nextInt(1024)): Bytes {
-      val bytes = ByteArray(length)
-      secureRandom.nextBytes(bytes)
-      return unsafe(bytes)
-    }
+    fun random(random: Random = Random.Default, length: Int = random.nextInt(1024)): Bytes =
+      unsafe(random.nextBytes(length))
   }
 }
