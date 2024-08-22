@@ -1,4 +1,4 @@
-package uk.org.lidalia.repositories
+package uk.org.lidalia.repositories.api
 
 import arrow.core.getOrElse
 import io.kotest.core.spec.style.StringSpec

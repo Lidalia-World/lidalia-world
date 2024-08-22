@@ -1,4 +1,4 @@
-package uk.org.lidalia.repositories
+package uk.org.lidalia.repositories.api
 
 class InMemoryTransaction {
   fun rollback() {

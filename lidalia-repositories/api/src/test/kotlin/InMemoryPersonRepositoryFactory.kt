@@ -1,4 +1,4 @@
-package uk.org.lidalia.repositories
+package uk.org.lidalia.repositories.api
 
 import uk.org.lidalia.repositories.person.PersonRepository
 import uk.org.lidalia.repositories.person.PersonRepository2
