@@ -6,9 +6,8 @@ plugins {
 dependencies {
   api(platform(libs.arrow.stack))
   api(libs.arrow.core)
-  api(project(":lidalia-repositories-api"))
-  api(project(":lidalia-repositories-postgres"))
-  api(project(":lidalia-uri"))
+  api(projects.lidaliaRepositoriesApi)
+  api(projects.lidaliaUri)
 }
 
 idea {
