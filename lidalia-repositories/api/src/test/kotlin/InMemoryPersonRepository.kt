@@ -78,7 +78,7 @@ class InMemoryPersonRepository : PersonRepository {
   }
 }
 
-class PersonRepository2 :
+class PersonGenericRepository :
   PersonRepository,
   GenericRepository<PersonId, PersonIdentifier, Person, UnpersistedPerson>(
     { PersonId(UUID.randomUUID()) },
