@@ -23,6 +23,7 @@ include(
   "lidalia-encoding-core" to "./encoding/core",
   "lidalia-repositories-api" to "./lidalia-repositories/api",
   "lidalia-repositories-postgres" to "./lidalia-repositories/postgres",
+  "lidalia-repositories-in-memory" to "./lidalia-repositories/in-memory",
 )
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")

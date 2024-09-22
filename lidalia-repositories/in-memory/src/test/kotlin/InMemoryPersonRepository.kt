@@ -1,27 +1,19 @@
-package uk.org.lidalia.repositories.person
+package uk.org.lidalia.repositories.inmemory
 
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
-import uk.org.lidalia.repositories.api.Entity
-import uk.org.lidalia.repositories.api.Id
-import uk.org.lidalia.repositories.api.Identifier
-import uk.org.lidalia.repositories.api.Metadata
-import uk.org.lidalia.repositories.api.MutableRepository
-import uk.org.lidalia.repositories.api.UnpersistedEntity
+import uk.org.lidalia.repositories.api.EntityMetadata
+import uk.org.lidalia.repositories.api.Person
+import uk.org.lidalia.repositories.api.PersonId
+import uk.org.lidalia.repositories.api.PersonIdentifier
+import uk.org.lidalia.repositories.api.PersonRepository
+import uk.org.lidalia.repositories.api.UnpersistedPerson
+import uk.org.lidalia.repositories.api.UuidVersionId
 import uk.org.lidalia.repositories.api.VersionId
-import uk.org.lidalia.repositories.generic.GenericRepository
 import java.time.Instant
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
-
-interface PersonRepository : MutableRepository<
-  PersonId,
-  PersonIdentifier,
-  Person,
-  EntityMetadata,
-  UnpersistedPerson,
-  >
 
 class InMemoryPersonRepository : PersonRepository {
 
@@ -80,40 +72,14 @@ class InMemoryPersonRepository : PersonRepository {
 
 class PersonGenericRepository :
   PersonRepository,
-  GenericRepository<PersonId, PersonIdentifier, Person, UnpersistedPerson>(
+  InMemoryGenericRepository<PersonId, PersonIdentifier, EntityMetadata, Person, UnpersistedPerson>(
     { PersonId(UUID.randomUUID()) },
+    { m: EntityMetadata? ->
+      val now = Instant.now()
+      EntityMetadata(
+        created = m?.created ?: now,
+        versionId = UuidVersionId(UUID.randomUUID()),
+        lastUpdated = now,
+      )
+    },
   )
-
-sealed interface PersonIdentifier : Identifier<PersonId>
-
-data class PersonId(
-  private val uuid: UUID,
-) : Id<PersonId>, PersonIdentifier {
-  override val id: PersonId = this
-}
-
-data class EntityMetadata(
-  val created: Instant,
-  override val versionId: VersionId,
-  val lastUpdated: Instant,
-) : Metadata
-
-data class UuidVersionId(
-  private val uuid: UUID,
-) : VersionId
-
-data class Person(
-  override val id: PersonId,
-  override val metadata: EntityMetadata,
-  val name: String,
-) : Entity<PersonId, EntityMetadata>, PersonIdentifier
-
-data class UnpersistedPerson(
-  val name: String,
-) : UnpersistedEntity<PersonId, Person, EntityMetadata> {
-  override fun toEntity(id: PersonId, metadata: EntityMetadata): Person = Person(
-    id = id,
-    name = name,
-    metadata = metadata,
-  )
-}

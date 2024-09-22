@@ -1,8 +1,8 @@
-package uk.org.lidalia.repositories.api
+package uk.org.lidalia.repositories.inmemory
 
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
-import uk.org.lidalia.repositories.person.UnpersistedPerson
+import uk.org.lidalia.repositories.api.UnpersistedPerson
 
 class InMemoryTransactionSpec : StringSpec({
 
