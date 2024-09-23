@@ -14,10 +14,11 @@ import uk.org.lidalia.repositories.api.VersionId
 import java.time.Instant
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.ConcurrentMap
 
-class InMemoryPersonRepository : PersonRepository {
-
-  private val store = ConcurrentHashMap<PersonId, Person>()
+class InMemoryPersonRepository(
+  private val store: ConcurrentMap<PersonId, Person> = ConcurrentHashMap(),
+) : PersonRepository {
 
   override fun get(identifier: PersonIdentifier): Person? = store[identifier.id]
 
@@ -68,6 +69,8 @@ class InMemoryPersonRepository : PersonRepository {
   override fun delete(identifier: PersonIdentifier) {
     store.remove(identifier.id)
   }
+
+  fun copy(): InMemoryPersonRepository = InMemoryPersonRepository(ConcurrentHashMap(store))
 }
 
 class PersonGenericRepository :
