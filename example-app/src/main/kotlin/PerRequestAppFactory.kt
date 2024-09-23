@@ -40,5 +40,5 @@ interface RequestMatchingHandler<T : Request> : RequestMatching<T>, Handler
 class RoutesHandler(
   private val handler: (Request) -> Handler,
 ) : Handler {
-  override fun invoke(req: Request): Response = TODO("Not yet implemented")
+  override fun invoke(req: Request): Response = handler(req).invoke(req)
 }

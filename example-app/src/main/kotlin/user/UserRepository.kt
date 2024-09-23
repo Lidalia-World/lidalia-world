@@ -30,7 +30,10 @@ sealed interface UserIdentifier : Identifier<UserId>
 data class UserId(
   private val uuid: UUID,
 ) : Id<UserId>, UserIdentifier {
+
   override val id: UserId = this
+
+  override fun toString(): String = uuid.toString()
 }
 
 data class EntityMetadata(

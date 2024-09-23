@@ -42,6 +42,6 @@ data class PersonUri(
   val userId: UserId,
 )
 
-fun PathAndQuery.toPersonUri() = PersonUri(this, this.path.segments[1].toPersonId())
+fun PathAndQuery.toPersonUri() = PersonUri(this, this.path.segments[2].toPersonId())
 
 fun Segment.toPersonId() = UserId(UUID.fromString(this.toString()))
