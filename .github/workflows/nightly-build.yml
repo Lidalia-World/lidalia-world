@@ -1,6 +1,7 @@
-name: Build
+name: Uncached (nightly) Build
 
 on:
+  workflow_dispatch:
   schedule:
     # Daily at 2AM
     # * is a special character in YAML so you have to quote this string
