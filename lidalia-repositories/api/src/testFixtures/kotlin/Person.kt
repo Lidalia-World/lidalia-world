@@ -9,7 +9,7 @@ interface PersonRepository : MutableRepository<
   Person,
   EntityMetadata,
   UnpersistedPerson,
-  >
+>
 
 sealed interface PersonIdentifier : Identifier<PersonId>
 

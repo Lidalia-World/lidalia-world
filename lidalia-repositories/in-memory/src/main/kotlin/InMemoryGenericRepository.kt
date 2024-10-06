@@ -18,7 +18,7 @@ open class InMemoryGenericRepository<
   EntityMetadata : Metadata,
   E : Entity<EntityId, EntityMetadata>,
   P : UnpersistedEntity<EntityId, E, EntityMetadata>,
-  >(
+>(
   private val idGenerator: () -> EntityId,
   private val metadataGenerator: (EntityMetadata?) -> EntityMetadata,
 ) : MutableRepository<EntityId, EntityIdentifier, E, EntityMetadata, P> {

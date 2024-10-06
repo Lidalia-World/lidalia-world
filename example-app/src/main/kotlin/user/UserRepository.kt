@@ -17,7 +17,7 @@ interface UserRepository : MutableRepository<
   User,
   EntityMetadata,
   UnpersistedUser,
-  >
+>
 
 class InMemoryUserRepository :
   UserRepository,

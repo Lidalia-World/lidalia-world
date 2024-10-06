@@ -76,11 +76,9 @@ internal fun MatchResult.extractAuthority(): Authority {
   return BasicAuthority(userInfo, host, port)
 }
 
-private fun MatchResult.extractHost(): Host {
-  return groups["registeredName"]?.toRegisteredName()
-    ?: groups["ipv4Address"]?.toIpv4Address()
-    ?: groups["ipLiteral"]!!.toIpLiteral()
-}
+private fun MatchResult.extractHost(): Host = groups["registeredName"]?.toRegisteredName()
+  ?: groups["ipv4Address"]?.toIpv4Address()
+  ?: groups["ipLiteral"]!!.toIpLiteral()
 
 private fun MatchGroup.toIpLiteral() = BasicIpLiteral(value)
 

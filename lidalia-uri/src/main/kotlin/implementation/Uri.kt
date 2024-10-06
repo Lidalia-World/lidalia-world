@@ -28,9 +28,7 @@ private data class BasicRelativeRef(
 
   override val scheme: Nothing? = null
 
-  override fun resolve(toResolve: UriReference): UriReference {
-    return toResolve
-  }
+  override fun resolve(toResolve: UriReference): UriReference = toResolve
 
   override fun toString(): String = "${authority?.withPrefix().orEmpty()}$path"
     .append(query)
@@ -51,9 +49,7 @@ private data class BasicPathAndQuery(
 
   override fun toString(): String = path.toString().append(query)
 
-  override fun resolve(toResolve: UriReference): UriReference {
-    return toResolve
-  }
+  override fun resolve(toResolve: UriReference): UriReference = toResolve
 }
 
 @JvmInline
@@ -76,9 +72,7 @@ private data class BasicAbsoluteUrl(
 
   override fun toString(): String = "$scheme://$authority$path".append(query)
 
-  override fun resolve(toResolve: UriReference): UriReference {
-    return toResolve
-  }
+  override fun resolve(toResolve: UriReference): UriReference = toResolve
 }
 
 private fun String.append(query: Query?): String = if (query == null) this else "$this?$query"
@@ -96,9 +90,7 @@ private data class BasicUrl(
 
   override fun toString(): String = "$scheme://$authority$path".append(query).append(fragment)
 
-  override fun resolve(toResolve: UriReference): UriReference {
-    return toResolve
-  }
+  override fun resolve(toResolve: UriReference): UriReference = toResolve
 }
 
 private data class BasicUrn(
@@ -111,9 +103,7 @@ private data class BasicUrn(
 
   override fun toString(): String = "$scheme:$path".append(query).append(fragment)
 
-  override fun resolve(toResolve: UriReference): UriReference {
-    return toResolve
-  }
+  override fun resolve(toResolve: UriReference): UriReference = toResolve
 }
 
 private data class BasicAbsoluteUrn(
@@ -126,9 +116,7 @@ private data class BasicAbsoluteUrn(
 
   override fun toString(): String = "$scheme:$path".append(query)
 
-  override fun resolve(toResolve: UriReference): UriReference {
-    return toResolve
-  }
+  override fun resolve(toResolve: UriReference): UriReference = toResolve
 }
 
 internal fun <A : Any, B : A> CharSequenceParser<Exception, A>.castOrFail(

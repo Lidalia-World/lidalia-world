@@ -8,7 +8,7 @@ interface Repository<
   EntityIdentifier : Identifier<EntityId>,
   out M : Metadata,
   out E : Entity<EntityId, M>,
-  > {
+> {
 
   fun get(identifier: EntityIdentifier): E?
 
@@ -25,7 +25,7 @@ interface MutableRepository<
   E : Entity<EntityId, M>,
   M : Metadata,
   P : UnpersistedEntity<EntityId, E, M>,
-  > : Repository<EntityId, EntityIdentifier, M, E> {
+> : Repository<EntityId, EntityIdentifier, M, E> {
   fun create(params: P): E
 
   fun put(
@@ -62,7 +62,7 @@ interface UnpersistedEntity<
   EntityId : Id<EntityId>,
   E : Entity<EntityId, M>,
   M : Metadata,
-  > {
+> {
   fun toEntity(id: EntityId, metadata: M): E
 }
 

@@ -20,7 +20,7 @@ open class GenericInMemoryRepository<
   EntityIdentifier : Identifier<EntityId>,
   E : Entity<EntityId, EntityMetadata>,
   P : UnpersistedEntity<EntityId, E, EntityMetadata>,
-  >(
+>(
   private val idGenerator: () -> EntityId,
 ) : MutableRepository<EntityId, EntityIdentifier, E, EntityMetadata, P> {
 
