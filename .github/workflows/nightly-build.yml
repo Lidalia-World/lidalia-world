@@ -11,7 +11,7 @@ permissions:
   checks: write
 
 jobs:
-  build:
+  uncached-build:
     runs-on: ubuntu-22.04
 
     steps:
