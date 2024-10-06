@@ -1,5 +1,7 @@
 [versions]
 kotlin = "2.0.20"
+kotlinter = "4.4.1"
+ideaext = "0.2.0"
 
 [libraries]
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
@@ -42,14 +44,15 @@ kotest-runner-junit4 = { module = "io.kotest:kotest-runner-junit4" }
 kotest-runner-junit5 = { module = "io.kotest:kotest-runner-junit5" }
 
 kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
-kotlinter-gradle-plugin = { module = "org.jmailen.kotlinter:org.jmailen.kotlinter.gradle.plugin", version = "4.0.0" }
+kotlinter-gradle-plugin = { module = "org.jmailen.kotlinter:org.jmailen.kotlinter.gradle.plugin", version.ref = "kotlinter" }
+ideaext-gradle-plugin = { module = "uk.org.lidalia.gradle.plugin:lidalia-idea-ext", version.ref = "ideaext" }
 
 reflections = { module = "org.reflections:reflections", version = "0.10.2" }
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 dependencyAnalysis = { id = "com.autonomousapps.dependency-analysis", version = "2.1.1" }
-kotlinter = { id = "org.jmailen.kotlinter", version = "4.4.1" }
+kotlinter = { id = "org.jmailen.kotlinter", version.ref = "kotlinter" }
 taskTree = { id = "com.dorongold.task-tree", version = "4.0.0" }
 versions = { id = "com.github.ben-manes.versions", version = "0.51.0" }
-ideaext = { id = "uk.org.lidalia.ideaext", version = "0.2.0" }
+ideaext = { id = "uk.org.lidalia.ideaext", version.ref = "ideaext" }
