@@ -1,5 +1,5 @@
 [versions]
-kotlin = "2.0.20"
+kotlin = "2.0.21"
 kotlinter = "4.4.1"
 ideaext = "0.2.0"
 
