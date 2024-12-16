@@ -51,7 +51,7 @@ reflections = { module = "org.reflections:reflections", version = "0.10.2" }
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
-dependencyAnalysis = { id = "com.autonomousapps.dependency-analysis", version = "2.1.1" }
+dependencyAnalysis = { id = "com.autonomousapps.dependency-analysis", version = "2.6.1" }
 kotlinter = { id = "org.jmailen.kotlinter", version.ref = "kotlinter" }
 taskTree = { id = "com.dorongold.task-tree", version = "4.0.0" }
 versions = { id = "com.github.ben-manes.versions", version = "0.51.0" }
