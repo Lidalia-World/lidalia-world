@@ -1,12 +1,23 @@
 [versions]
-kotlin = "2.0.20"
-kotlinter = "4.4.1"
+kotlin = "2.1.10"
+kotlinter = "5.0.1"
+mockk = "1.13.16"
+clikt = "5.0.3"
+wiremock = "3.12.0"
+slf4j = "2.0.16"
 ideaext = "0.2.0"
 
 [libraries]
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
 
-arrow-stack = { module = "io.arrow-kt:arrow-stack", version = "1.2.4" }
+wiremock = { module = "org.wiremock:wiremock", version.ref = "wiremock" }
+wiremock-jetty12 = { module = "org.wiremock:wiremock-jetty12", version.ref = "wiremock" }
+wiremock-standalone = { module = "org.wiremock:wiremock-standalone", version.ref = "wiremock" }
+
+kotlinx-coroutines-bom = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-bom", version = "1.10.1" }
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core" }
+
+arrow-stack = { module = "io.arrow-kt:arrow-stack", version = "2.0.1" }
 arrow-annotations = { module = "io.arrow-kt:arrow-annotations" }
 arrow-continuations = { module = "io.arrow-kt:arrow-continuations" }
 arrow-atomic = { module = "io.arrow-kt:arrow-atomic" }
@@ -34,6 +45,8 @@ kotest-extensions-http = { module = "io.kotest:kotest-extensions-http" }
 kotest-extensions-junit5 = { module = "io.kotest:kotest-extensions-junit5" }
 kotest-extensions-junitxml = { module = "io.kotest:kotest-extensions-junitxml" }
 kotest-extensions-now = { module = "io.kotest:kotest-extensions-now" }
+kotest-extensions-jvm = { module = "io.kotest:kotest-extensions-jvm" }
+kotest-extensions-wiremock = { module = "io.kotest.extensions:kotest-extensions-wiremock", version="3.1.0" }
 kotest-framework-api = { module = "io.kotest:kotest-framework-api" }
 kotest-framework-concurrency = { module = "io.kotest:kotest-framework-concurrency" }
 kotest-framework-datatest = { module = "io.kotest:kotest-framework-datatest" }
@@ -42,6 +55,41 @@ kotest-framework-engine = { module = "io.kotest:kotest-framework-engine" }
 kotest-property-lifecycle = { module = "io.kotest:kotest-property-lifecycle" }
 kotest-runner-junit4 = { module = "io.kotest:kotest-runner-junit4" }
 kotest-runner-junit5 = { module = "io.kotest:kotest-runner-junit5" }
+semver4j = { module = "com.github.gundy:semver4j", version = "0.16.4" }
+
+auth0 = { module = "com.auth0:auth0", version = "2.18.0" }
+
+kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version = "1.8.0" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version = "1.8.0" }
+okhttp = { module = "com.squareup.okhttp3:okhttp" }
+
+mockk-mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
+mockk-core = { module = "io.mockk:mockk-core", version.ref = "mockk" }
+mockk-dsl = { module = "io.mockk:mockk-dsl", version.ref = "mockk" }
+
+snakeyaml = { module = "org.yaml:snakeyaml", version = "2.4" }
+
+clikt = { module = "com.github.ajalt.clikt:clikt", version.ref = "clikt" }
+clikt-core = { module = "com.github.ajalt.clikt:clikt-core", version.ref = "clikt" }
+
+log4j2-core = { module = "org.apache.logging.log4j:log4j-core" }
+log4j2-to-slf4j = { module = "org.apache.logging.log4j:log4j-to-slf4j" }
+
+logback-classic = { module = "ch.qos.logback:logback-classic", version = "1.5.16" }
+
+slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
+slf4j-nop = { module = "org.slf4j:slf4j-nop", version.ref = "slf4j" }
+slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j" }
+slf4j-jdk14 = { module = "org.slf4j:slf4j-jdk14", version.ref = "slf4j" }
+slf4j-jcl-over-slf4j = { module = "org.slf4j:jcl-over-slf4j", version.ref = "slf4j" }
+slf4j-jul-to-slf4j = { module = "org.slf4j:jul-to-slf4j", version.ref = "slf4j" }
+slf4j-log4j-over-slf4j = { module = "org.slf4j:log4j-over-slf4j", version.ref = "slf4j" }
+
+commons-logging = { module = "commons-logging:commons-logging" }
+log4j = { module = "log4j:log4j" }
+
+apache-http-core5 = { module = "org.apache.httpcomponents.core5:httpcore5", version = "5.3.3" }
+apache-http-client5 = { module = "org.apache.httpcomponents.client5:httpclient5", version = "5.4.2" }
 
 kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 kotlinter-gradle-plugin = { module = "org.jmailen.kotlinter:org.jmailen.kotlinter.gradle.plugin", version.ref = "kotlinter" }
@@ -51,8 +99,10 @@ reflections = { module = "org.reflections:reflections", version = "0.10.2" }
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
-dependencyAnalysis = { id = "com.autonomousapps.dependency-analysis", version = "2.1.1" }
+dependencyAnalysis = { id = "com.autonomousapps.dependency-analysis", version = "2.10.0" }
 kotlinter = { id = "org.jmailen.kotlinter", version.ref = "kotlinter" }
 taskTree = { id = "com.dorongold.task-tree", version = "4.0.0" }
-versions = { id = "com.github.ben-manes.versions", version = "0.51.0" }
+versions = { id = "com.github.ben-manes.versions", version = "0.52.0" }
 ideaext = { id = "uk.org.lidalia.ideaext", version.ref = "ideaext" }
+kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+spring-boot = { id = "org.springframework.boot", version = "3.4.3" }

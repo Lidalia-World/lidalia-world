@@ -1,10 +1,11 @@
 plugins {
-  id("lidalia.world.kotlin-library-conventions")
+  id("buildlogic.kotlin-library-conventions")
   alias(libs.plugins.ideaext)
 }
 
 dependencies {
   api(projects.lidaliaRepositoriesApi)
+  api(libs.arrow.core)
   testImplementation(testFixtures(projects.lidaliaRepositoriesApi))
 }
 
