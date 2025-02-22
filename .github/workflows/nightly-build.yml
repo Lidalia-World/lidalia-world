@@ -18,7 +18,12 @@ jobs:
 
       - uses: actions/checkout@v4
 
-      - run: ./build.sh
+      - id: gradle-args
+        name: Set GRADLE_ARGS based on debug mode
+        if: ${{ runner.debug == '1' }}
+        run: echo "GRADLE_ARGS=--info --stacktrace" >> $GITHUB_ENV
+
+      - run: ./build.sh "${{ steps.gradle-args.GRADLE_ARGS }}"
 
       - uses: Mahoney-github-actions/gradle-build-output@v2
         if: always()

@@ -30,10 +30,15 @@ jobs:
           endpoint: "mahoney266/lidalia-world-gha"
           install: true
 
+      - name: Set GRADLE_ARGS based on debug mode
+        if: ${{ runner.debug == '1' }}
+        run: echo "GRADLE_ARGS=--info --stacktrace" >> $GITHUB_ENV
+
       - name: Build
         uses: docker/build-push-action@v6
         with:
           context: .
+          build-args: GRADLE_ARGS=${{ env.GRADLE_ARGS }}
           outputs: 'type=local,dest=build'
 
       - name: Capture output on failure
@@ -41,6 +46,7 @@ jobs:
         if: failure()
         with:
           context: .
+          build-args: GRADLE_ARGS=${{ env.GRADLE_ARGS }}
           target: build-output
           outputs: 'type=local,dest=build'
 
