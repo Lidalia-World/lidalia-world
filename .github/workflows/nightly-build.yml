@@ -23,7 +23,7 @@ jobs:
         if: ${{ runner.debug == '1' }}
         run: echo "GRADLE_ARGS=--info --stacktrace" >> $GITHUB_ENV
 
-      - run: ./build.sh "${{ steps.gradle-args.GRADLE_ARGS }}"
+      - run: ./build.sh ${{ env.GRADLE_ARGS }}
 
       - uses: Mahoney-github-actions/gradle-build-output@v2
         if: always()
