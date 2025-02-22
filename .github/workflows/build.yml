@@ -30,12 +30,19 @@ jobs:
           endpoint: "mahoney266/lidalia-world-gha"
           install: true
 
-      - uses: docker/build-push-action@v6
+      - name: Build
+        uses: docker/build-push-action@v6
         with:
+          context: .
+          outputs: 'type=local,dest=build'
+
+      - name: Capture output on failure
+        uses: docker/build-push-action@v6
+        if: failure()
+        with:
+          context: .
           target: build-output
           outputs: 'type=local,dest=build'
 
-      - uses: docker/build-push-action@v6
-        if: ${{ hashFiles('build/failed') != '' }}
-
-      - uses: Mahoney-github-actions/gradle-build-output@v1
+      - uses: Mahoney-github-actions/gradle-build-output@v2
+        if: always()

@@ -20,4 +20,5 @@ jobs:
 
       - run: ./build.sh
 
-      - uses: Mahoney-github-actions/gradle-build-output@v1
+      - uses: Mahoney-github-actions/gradle-build-output@v2
+        if: always()
