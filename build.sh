@@ -8,12 +8,15 @@ main() {
 
   rm -rf build
 
-  if docker build . --output build; then
+  if docker build . \
+      --build-arg "GRADLE_ARGS=$*" \
+      --output build; then
     echo "Output can be found in build/artifacts"
   else
     docker build . \
-      --target build-output \
-      --output build
+        --build-arg "GRADLE_ARGS=$*" \
+        --target build-output \
+        --output build
     exit "$(cat build/failed)";
   fi
 }
