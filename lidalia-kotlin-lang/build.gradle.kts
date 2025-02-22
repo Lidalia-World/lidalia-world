@@ -1,5 +1,5 @@
 plugins {
-  id("lidalia.world.kotlin-library-conventions")
+  id("buildlogic.kotlin-library-conventions")
 }
 
 dependencies {
