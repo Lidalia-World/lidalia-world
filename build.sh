@@ -6,16 +6,15 @@ main() {
   export BUILDKIT_PROGRESS=plain
   export PROGRESS_NO_TRUNC=1
 
-  rm -rf build/failed
+  rm -rf build
 
-  docker build . \
-    --target build-output \
-    --output build
-
-  if [ -f build/failed ]; then
-    exit "$(cat build/failed)";
-  else
+  if docker build . --output build; then
     echo "Output can be found in build/artifacts"
+  else
+    docker build . \
+      --target build-output \
+      --output build
+    exit "$(cat build/failed)";
   fi
 }
 
