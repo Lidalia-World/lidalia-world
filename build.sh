@@ -1,6 +1,6 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 
-set -euo pipefail
+set -eu
 
 main() {
   export BUILDKIT_PROGRESS=plain
@@ -17,7 +17,13 @@ main() {
         --build-arg "GRADLE_ARGS=$*" \
         --target build-output \
         --output build
-    exit "$(cat build/failed)";
+    echo "Output can be found in build"
+    if [ -e build/failed ]; then
+      exit "$(cat build/failed)";
+    else
+      echo "Docker build passed the second time! Very odd..."
+      exit 1
+    fi
   fi
 }
 
