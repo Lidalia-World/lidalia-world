@@ -101,7 +101,7 @@ reflections = { module = "org.reflections:reflections", version = "0.10.2" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 dependencyAnalysis = { id = "com.autonomousapps.dependency-analysis", version = "2.10.1" }
 kotlinter = { id = "org.jmailen.kotlinter", version.ref = "kotlinter" }
-taskTree = { id = "com.dorongold.task-tree", version = "4.0.0" }
+taskTree = { id = "com.dorongold.task-tree", version = "4.0.1" }
 versions = { id = "com.github.ben-manes.versions", version = "0.52.0" }
 ideaext = { id = "uk.org.lidalia.ideaext", version.ref = "ideaext" }
 kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
