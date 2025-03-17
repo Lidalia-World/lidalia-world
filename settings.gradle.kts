@@ -9,7 +9,7 @@ pluginManagement {
 }
 
 plugins {
-  id("com.autonomousapps.build-health") version "2.10.1"
+  id("com.autonomousapps.build-health") version "2.12.0"
 
   // Kotlin must be loaded in the same (or parent) class loader as the
   // Dependency Analysis Plugin. The lines below are one way to accomplish this
