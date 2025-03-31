@@ -13,7 +13,7 @@ plugins {
 
   // Kotlin must be loaded in the same (or parent) class loader as the
   // Dependency Analysis Plugin. The lines below are one way to accomplish this
-  id("org.jetbrains.kotlin.jvm") version "2.1.10" apply false
+  id("org.jetbrains.kotlin.jvm") version "2.1.20" apply false
 }
 
 rootProject.name = "lidalia-world"
