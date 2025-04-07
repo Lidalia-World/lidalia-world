@@ -75,7 +75,7 @@ clikt-core = { module = "com.github.ajalt.clikt:clikt-core", version.ref = "clik
 log4j2-core = { module = "org.apache.logging.log4j:log4j-core" }
 log4j2-to-slf4j = { module = "org.apache.logging.log4j:log4j-to-slf4j" }
 
-logback-classic = { module = "ch.qos.logback:logback-classic", version = "1.5.17" }
+logback-classic = { module = "ch.qos.logback:logback-classic", version = "1.5.18" }
 
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 slf4j-nop = { module = "org.slf4j:slf4j-nop", version.ref = "slf4j" }
