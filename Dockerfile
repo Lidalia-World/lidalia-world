@@ -1,6 +1,7 @@
 # syntax=docker/dockerfile:1.13.0
 ARG username=worker
 ARG work_dir=/home/$username/work
+ARG GRADLE_TASK=build
 
 # Copy across all the build definition files in a separate stage
 # This will not get any layer caching if anything in the context has changed, but when we
@@ -33,14 +34,22 @@ ARG work_dir
 RUN mkdir -p $work_dir
 WORKDIR $work_dir
 
+ARG tmp_user_home=/tmp/gradle/home
+ARG tmp_gradle_user_home=$tmp_user_home/.gradle
+ARG tmp_gradle_user_home_cache_dir=$tmp_gradle_user_home/caches
+
+RUN mkdir -p $tmp_gradle_user_home_cache_dir
+
 # Download gradle in a separate step to benefit from layer caching
 COPY --link --chown=$uid gradle/wrapper gradle/wrapper
 COPY --link --chown=$uid gradlew gradlew
-RUN  ./gradlew --version
+RUN  ./gradlew --version && \
+     cp -R ~/.gradle $tmp_user_home
 
-ARG gradle_cache_dir=/home/$username/.gradle/caches
+ARG build_cache_dir=/home/$username/.gradle/caches/build-cache-1
 
-RUN mkdir -p $gradle_cache_dir
+RUN mkdir -p $build_cache_dir
+RUN mkdir -p $work_dir/.gradle
 
 ENV GRADLE_OPTS="\
 -Dorg.gradle.daemon=false \
@@ -51,21 +60,34 @@ ENV GRADLE_OPTS="\
 # Build the configuration cache & download all deps in a single layer
 COPY --link --chown=$uid --from=gradle-files /gradle-files ./
 COPY --link --chown=$uid gradle gradle
+
+ARG GRADLE_TASK
 ARG GRADLE_ARGS
 
 RUN --mount=type=cache,gid=$gid,uid=$uid,target=$work_dir/.gradle \
-    --mount=type=cache,gid=$gid,uid=$uid,target=$gradle_cache_dir \
-    ./gradlew build $GRADLE_ARGS --dry-run
+    --mount=type=cache,gid=$gid,uid=$uid,target=$tmp_gradle_user_home_cache_dir \
+    GRADLE_USER_HOME=$tmp_gradle_user_home \
+    ./gradlew $GRADLE_ARGS \
+      --dry-run \
+      build && \
+    cp -R $tmp_gradle_user_home_cache_dir ~/.gradle
+
+RUN rm -rf $tmp_user_home
 
 COPY --link --chown=$uid . .
 
 
 FROM --platform=$BUILDPLATFORM base_builder AS unfailing-build
 ARG GRADLE_ARGS
+ARG CACHE_BUSTER
+ARG GRADLE_TASK
+
+RUN echo "$CACHE_BUSTER" > /dev/null
 
 RUN --mount=type=cache,gid=$gid,uid=$uid,target=$work_dir/.gradle \
-    --mount=type=cache,gid=$gid,uid=$uid,target=$gradle_cache_dir \
-    ./gradlew build $GRADLE_ARGS || (status=$?; mkdir -p build && echo $status > build/failed)
+    --mount=type=cache,gid=$gid,uid=$uid,target=$build_cache_dir \
+    --network=none \
+    ./gradlew $GRADLE_ARGS --offline $GRADLE_TASK || (status=$?; mkdir -p build && echo $status > build/failed)
 
 
 FROM --platform=$BUILDPLATFORM scratch AS build-output
@@ -76,11 +98,12 @@ COPY --link --from=unfailing-build $work_dir/build .
 
 FROM --platform=$BUILDPLATFORM base_builder AS builder
 ARG GRADLE_ARGS
+ARG GRADLE_TASK
 
 RUN --mount=type=cache,gid=$gid,uid=$uid,target=$work_dir/.gradle \
-    --mount=type=cache,gid=$gid,uid=$uid,target=$gradle_cache_dir \
+    --mount=type=cache,gid=$gid,uid=$uid,target=$build_cache_dir \
     --network=none \
-    ./gradlew $GRADLE_ARGS --offline build
+    ./gradlew $GRADLE_ARGS --offline $GRADLE_TASK
 
 
 FROM --platform=$BUILDPLATFORM scratch
