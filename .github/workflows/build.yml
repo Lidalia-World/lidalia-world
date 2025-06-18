@@ -42,7 +42,7 @@ jobs:
           echo "BUILDKIT_PROGRESS=plain" >> $GITHUB_ENV
           echo "PROGRESS_NO_TRUNC=1" >> $GITHUB_ENV
 
-      - run: ./build.sh --build-arg "GRADLE_ARGS=${{ steps.set_gradle_args.outputs.gradle_args}}" \
+      - run: ./build.sh --build-arg "GRADLE_ARGS=${{ steps.set_gradle_args.outputs.gradle_args}}"
 
       - uses: Mahoney-github-actions/gradle-build-output@v2
         if: always()
