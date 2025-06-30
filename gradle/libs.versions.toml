@@ -59,8 +59,8 @@ semver4j = { module = "com.github.gundy:semver4j", version = "0.16.4" }
 
 auth0 = { module = "com.auth0:auth0", version = "2.19.0" }
 
-kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version = "1.8.0" }
-kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version = "1.8.0" }
+kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version = "1.9.0" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version = "1.9.0" }
 okhttp = { module = "com.squareup.okhttp3:okhttp" }
 
 mockk-mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
