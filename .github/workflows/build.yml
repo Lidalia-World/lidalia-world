@@ -27,7 +27,7 @@ jobs:
 
     steps:
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: Mahoney-github-actions/gradle-build-output/actions/prepare-docker-build@v2
         if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.use-cache)
