@@ -102,7 +102,7 @@ kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 dependencyAnalysis = { id = "com.autonomousapps.dependency-analysis", version = "3.0.4" }
 kotlinter = { id = "org.jmailen.kotlinter", version.ref = "kotlinter" }
 taskTree = { id = "com.dorongold.task-tree", version = "4.0.1" }
-versions = { id = "com.github.ben-manes.versions", version = "0.52.0" }
+versions = { id = "com.github.ben-manes.versions", version = "0.53.0" }
 ideaext = { id = "uk.org.lidalia.ideaext", version.ref = "ideaext" }
 kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 spring-boot = { id = "org.springframework.boot", version = "3.4.4" }
