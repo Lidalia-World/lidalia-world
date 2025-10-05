@@ -5,6 +5,7 @@ plugins {
 
 dependencies {
   api(projects.lidaliaRepositoriesApi)
+  testImplementation(libs.kotest.assertions.core)
 }
 
 idea {

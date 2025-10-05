@@ -1,13 +1,13 @@
 import arrow.core.Either
 import arrow.core.getOrElse
-import io.kotest.core.spec.style.StringSpec
+import io.kotest.core.spec.style.FunSpec
 import io.kotest.datatest.withData
 import io.kotest.matchers.shouldBe
 import uk.org.lidalia.uri.api.Path
 import uk.org.lidalia.uri.api.UriReference
 import uk.org.lidalia.uri.api.toUriReference
 
-class ResolveSpec : StringSpec(
+class ResolveSpec : FunSpec(
   {
     withData<UriReferenceResolveUriReferenceTestCase>(
       { (base, toResolve, expected) -> "$base.resolve($toResolve) should be $expected" },

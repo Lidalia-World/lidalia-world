@@ -35,7 +35,7 @@ dependencies {
 tasks {
   check {
     dependsOn(buildHealth)
-    dependsOn(installKotlinterPrePushHook)
+    dependsOn("installKotlinterPrePushHook")
   }
 
   val copyArtifacts by registering(Sync::class) {
@@ -72,9 +72,7 @@ dependencyAnalysis {
         onUnusedDependencies {
           exclude(
             libs.kotest.runner.junit5,
-            libs.kotest.framework.api,
             libs.kotest.framework.engine,
-            libs.kotest.assertions.api,
             libs.kotest.assertions.core,
             libs.kotest.assertions.shared,
             libs.kotest.common,
@@ -92,6 +90,6 @@ dependencyAnalysis {
 
 fun String.isPreRelease(): Boolean = try {
   Version.fromString(this).preReleaseIdentifiers.isNotEmpty()
-} catch (e: IllegalArgumentException) {
+} catch (_: IllegalArgumentException) {
   false
 }

@@ -1,9 +1,12 @@
+@file:OptIn(ExperimentalAtomicApi::class)
+
 package uk.org.lidalia.repositories.inmemory
 
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
-import io.kotest.mpp.atomics.AtomicReference
 import uk.org.lidalia.repositories.api.UnpersistedPerson
+import kotlin.concurrent.atomics.AtomicReference
+import kotlin.concurrent.atomics.ExperimentalAtomicApi
 
 class InMemoryTransactionSpec : StringSpec({
 

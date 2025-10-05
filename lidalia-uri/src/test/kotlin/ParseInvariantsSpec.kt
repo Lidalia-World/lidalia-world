@@ -1,7 +1,7 @@
 package uk.org.lidalia.uri
 
 import arrow.core.getOrElse
-import io.kotest.core.spec.style.StringSpec
+import io.kotest.core.spec.style.FunSpec
 import io.kotest.datatest.withData
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
@@ -29,7 +29,7 @@ import kotlin.reflect.full.allSuperclasses
 import kotlin.reflect.full.companionObjectInstance
 import kotlin.reflect.full.superclasses
 
-class ParseInvariantsSpec : StringSpec(
+class ParseInvariantsSpec : FunSpec(
   {
 
     val uriReferenceTestCases = listOf(

@@ -1,12 +1,15 @@
+@file:OptIn(ExperimentalAtomicApi::class)
+
 package uk.org.lidalia.repositories.inmemory
 
-import io.kotest.mpp.atomics.AtomicReference
+import kotlin.concurrent.atomics.AtomicReference
+import kotlin.concurrent.atomics.ExperimentalAtomicApi
 
 class InMemoryTransaction(
   private val repository: AtomicReference<InMemoryPersonRepository>,
 ) {
 
-  private val initialRepository = repository.value
+  private val initialRepository = repository.load()
   var transactionRepository = initialRepository.copy()
 
   fun rollback() {
