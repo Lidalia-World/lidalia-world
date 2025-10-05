@@ -1,5 +1,8 @@
-abstract class InvalidEncoding protected constructor(
-  val invalidEncoding: Any,
-  message: String? = null,
-  cause: Throwable? = null,
-) : Exception(message, cause)
+package uk.org.lidalia.encoding.core
+
+interface InvalidEncoding<Decoded, RawEncoded, E : Encoded<Decoded, RawEncoded>> {
+  val invalidEncoding: RawEncoded
+  val decoder: Decoder<Decoded, RawEncoded, E>
+  val message: String?
+  val cause: Throwable?
+}

@@ -92,11 +92,11 @@ class Bytes private constructor(
 
   companion object {
 
-    operator fun invoke(bytes: ByteArray): Bytes = unsafe(bytes.copyOf())
+    fun ByteArray.toBytes(): Bytes = unsafe(copyOf())
 
-    operator fun invoke(`in`: InputStream): Bytes {
+    fun InputStream.toBytes(): Bytes {
       val out = ByteArrayOutputStream()
-      copy(`in`, out)
+      copy(this, out)
       return unsafe(out.toByteArray())
     }
 
@@ -114,28 +114,27 @@ class Bytes private constructor(
     }
 
     @JvmOverloads
-    operator fun invoke(text: String, charset: Charset = UTF_8): Bytes =
-      unsafe(text.toByteArray(charset))
+    fun String.toBytes(charset: Charset = UTF_8): Bytes = unsafe(toByteArray(charset))
 
-    operator fun invoke(bigInteger: BigInteger): Bytes = unsafe(bigInteger.toByteArray())
+    fun BigInteger.toBytes(): Bytes = unsafe(toByteArray())
 
-    operator fun invoke(b: Byte): Bytes = unsafe(byteArrayOf(b))
+    fun Byte.toBytes(): Bytes = unsafe(byteArrayOf(this))
 
-    operator fun invoke(integer: Int): Bytes = unsafe(
-      ByteBuffer.allocate(4).putInt(integer).array(),
+    fun Int.toBytes(): Bytes = unsafe(
+      ByteBuffer.allocate(4).putInt(this).array(),
     )
 
     val empty = unsafe(ByteArray(0))
 
-    operator fun invoke(vararg elements: Bytes): Bytes = invoke(elements.asList())
+    operator fun invoke(vararg elements: Bytes): Bytes = elements.asList().toBytes()
 
     // TODO this could be more efficient with no copying by storing the List<Bytes> as the
     //  state of the Bytes object and doing the maths to haul data out of them as needed
-    operator fun invoke(elements: Iterable<Bytes>): Bytes {
-      val length = elements.sumOf { obj: Bytes -> obj.size }
+    fun Iterable<Bytes>.toBytes(): Bytes {
+      val length = sumOf { obj: Bytes -> obj.size }
       val bytes = ByteArray(length)
       var offset = 0
-      for (element in elements) {
+      for (element in this) {
         System.arraycopy(
           element.array(),
           0,
