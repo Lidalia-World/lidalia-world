@@ -1,3 +1,5 @@
+package uk.org.lidalia.encoding.core
+
 /**
  * Represents an encoded form of some value - for instance, a byte[] encoded as a hex string.
  * Should be validated as part of construction - that is, calling either method on this interface
@@ -10,7 +12,7 @@ interface Encoded<Decoded, Raw> {
   /**
    * @return the original unencoded value
    */
-  fun decode(): Decoded
+  val decoded: Decoded
 
   /**
    * @return the raw encoded form

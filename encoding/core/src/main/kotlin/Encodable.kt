@@ -1,3 +1,5 @@
+package uk.org.lidalia.encoding.core
+
 interface Encodable<Self : Encodable<Self>> {
   @Suppress("UNCHECKED_CAST")
   fun <RawEncoded, E : Encoded<Self, RawEncoded>> encode(
