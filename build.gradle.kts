@@ -35,7 +35,7 @@ dependencies {
 tasks {
   check {
     dependsOn(buildHealth)
-    dependsOn(installKotlinterPrePushHook)
+    dependsOn("installKotlinterPrePushHook")
   }
 
   val copyArtifacts by registering(Sync::class) {
@@ -92,6 +92,6 @@ dependencyAnalysis {
 
 fun String.isPreRelease(): Boolean = try {
   Version.fromString(this).preReleaseIdentifiers.isNotEmpty()
-} catch (e: IllegalArgumentException) {
+} catch (_: IllegalArgumentException) {
   false
 }

@@ -1,11 +1,11 @@
 [versions]
 kotlin = "2.2.20"
-kotlinter = "5.0.1"
+kotlinter = "5.2.0"
 mockk = "1.13.17"
 clikt = "5.0.3"
 wiremock = "3.12.1"
 slf4j = "2.0.17"
-ideaext = "0.2.0"
+ideaext = "0.3.0"
 
 [libraries]
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
@@ -14,7 +14,7 @@ wiremock = { module = "org.wiremock:wiremock", version.ref = "wiremock" }
 wiremock-jetty12 = { module = "org.wiremock:wiremock-jetty12", version.ref = "wiremock" }
 wiremock-standalone = { module = "org.wiremock:wiremock-standalone", version.ref = "wiremock" }
 
-kotlinx-coroutines-bom = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-bom", version = "1.10.1" }
+kotlinx-coroutines-bom = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-bom", version = "1.10.2" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core" }
 
 arrow-stack = { module = "io.arrow-kt:arrow-stack", version = "2.1.2" }
@@ -92,7 +92,7 @@ log4j = { module = "log4j:log4j" }
 apache-http-core5 = { module = "org.apache.httpcomponents.core5:httpcore5", version = "5.3.3" }
 apache-http-client5 = { module = "org.apache.httpcomponents.client5:httpclient5", version = "5.5.1" }
 
-apache-commons-lang = { module = "org.apache.commons:commons-lang3", version = "3.18.0" }
+apache-commons-lang = { module = "org.apache.commons:commons-lang3", version = "3.19.0" }
 kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 kotlinter-gradle-plugin = { module = "org.jmailen.kotlinter:org.jmailen.kotlinter.gradle.plugin", version.ref = "kotlinter" }
 ideaext-gradle-plugin = { module = "uk.org.lidalia.gradle.plugin:lidalia-idea-ext", version.ref = "ideaext" }
