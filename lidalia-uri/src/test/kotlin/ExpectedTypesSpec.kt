@@ -1,6 +1,6 @@
 package uk.org.lidalia.uri.api
 
-import io.kotest.core.spec.style.StringSpec
+import io.kotest.core.spec.style.FunSpec
 import io.kotest.datatest.WithDataTestName
 import io.kotest.datatest.withData
 import io.kotest.matchers.shouldBe
@@ -20,7 +20,7 @@ val uriReferenceSubTypes: Set<KClass<out UriReference>> = setOf(
   PathAndQuery::class,
 ) + uriSubTypes
 
-class ExpectedTypesSpec : StringSpec({
+class ExpectedTypesSpec : FunSpec({
 
   val reflections = Reflections("uk.org.lidalia.uri")
 

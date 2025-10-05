@@ -72,9 +72,7 @@ dependencyAnalysis {
         onUnusedDependencies {
           exclude(
             libs.kotest.runner.junit5,
-            libs.kotest.framework.api,
             libs.kotest.framework.engine,
-            libs.kotest.assertions.api,
             libs.kotest.assertions.core,
             libs.kotest.assertions.shared,
             libs.kotest.common,

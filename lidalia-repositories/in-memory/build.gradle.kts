@@ -7,6 +7,7 @@ dependencies {
   api(projects.lidaliaRepositoriesApi)
   api(libs.arrow.core)
   testImplementation(testFixtures(projects.lidaliaRepositoriesApi))
+  testImplementation(libs.kotest.assertions.core)
 }
 
 idea {

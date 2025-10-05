@@ -26,9 +26,7 @@ dependencies {
   }
 
   testImplementation(libs.kotest.runner.junit5)
-  testImplementation(libs.kotest.framework.api)
   testImplementation(libs.kotest.framework.engine)
-  testImplementation(libs.kotest.assertions.api)
   testImplementation(libs.kotest.assertions.shared)
   testImplementation(libs.kotest.common)
   testImplementation(libs.kotest.extensions.jvm)

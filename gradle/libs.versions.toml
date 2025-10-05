@@ -30,11 +30,10 @@ arrow-optics = { module = "io.arrow-kt:arrow-optics" }
 arrow-optics-reflect = { module = "io.arrow-kt:arrow-optics-reflect" }
 arrow-optics-ksp-plugin = { module = "io.arrow-kt:arrow-optics-ksp-plugin" }
 
-kotest-bom = { module = "io.kotest:kotest-bom", version = "5.9.1" }
+kotest-bom = { module = "io.kotest:kotest-bom", version = "6.0.3" }
 kotest-common = { module = "io.kotest:kotest-common" }
 kotest-extensions = { module = "io.kotest:kotest-extensions" }
 kotest-property = { module = "io.kotest:kotest-property" }
-kotest-assertions-api = { module = "io.kotest:kotest-assertions-api" }
 kotest-assertions-core = { module = "io.kotest:kotest-assertions-core" }
 kotest-assertions-json = { module = "io.kotest:kotest-assertions-json" }
 kotest-assertions-shared = { module = "io.kotest:kotest-assertions-shared" }
@@ -48,7 +47,6 @@ kotest-extensions-junitxml = { module = "io.kotest:kotest-extensions-junitxml" }
 kotest-extensions-now = { module = "io.kotest:kotest-extensions-now" }
 kotest-extensions-jvm = { module = "io.kotest:kotest-extensions-jvm" }
 kotest-extensions-wiremock = { module = "io.kotest.extensions:kotest-extensions-wiremock", version="3.1.0" }
-kotest-framework-api = { module = "io.kotest:kotest-framework-api" }
 kotest-framework-concurrency = { module = "io.kotest:kotest-framework-concurrency" }
 kotest-framework-datatest = { module = "io.kotest:kotest-framework-datatest" }
 kotest-framework-discovery = { module = "io.kotest:kotest-framework-discovery" }

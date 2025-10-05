@@ -8,6 +8,7 @@ dependencies {
   api(projects.lidaliaEncodingCore)
   api(libs.arrow.core)
   testImplementation(testFixtures(projects.lidaliaEncodingCore))
+  testImplementation(libs.kotest.assertions.core)
   testImplementation(libs.kotest.assertions.shared)
   testImplementation(libs.kotest.assertions.arrow)
   testImplementation(libs.apache.commons.lang)
