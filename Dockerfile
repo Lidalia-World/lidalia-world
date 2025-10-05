@@ -19,11 +19,11 @@ RUN --mount=type=bind,target=/docker-context \
     find . -name "*module-info.java" -exec cp --parents "{}" /gradle-files/ \;
 
 
-FROM --platform=$BUILDPLATFORM eclipse-temurin:23-jdk-alpine-3.21 AS base_builder
+FROM --platform=$BUILDPLATFORM eclipse-temurin:25_36-jdk-alpine-3.22 AS base_builder
 
 ARG username
-ARG gid=1000
-ARG uid=1001
+ARG gid=2000
+ARG uid=2001
 
 RUN addgroup --system $username --gid $gid && \
     adduser --system $username --ingroup $username --uid $uid
@@ -64,8 +64,7 @@ COPY --link --chown=$uid gradle gradle
 ARG GRADLE_TASK
 ARG GRADLE_ARGS
 
-RUN --mount=type=cache,gid=$gid,uid=$uid,target=$work_dir/.gradle \
-    --mount=type=cache,gid=$gid,uid=$uid,target=$tmp_gradle_user_home_cache_dir \
+RUN --mount=type=cache,gid=$gid,uid=$uid,target=$tmp_gradle_user_home_cache_dir \
     GRADLE_USER_HOME=$tmp_gradle_user_home \
     ./gradlew $GRADLE_ARGS \
       --dry-run \
@@ -84,10 +83,13 @@ ARG GRADLE_TASK
 
 RUN echo "$CACHE_BUSTER" > /dev/null
 
-RUN --mount=type=cache,gid=$gid,uid=$uid,target=$work_dir/.gradle \
-    --mount=type=cache,gid=$gid,uid=$uid,target=$build_cache_dir \
+RUN --mount=type=cache,gid=$gid,uid=$uid,target=$build_cache_dir \
     --network=none \
     ./gradlew $GRADLE_ARGS --offline $GRADLE_TASK || (status=$?; mkdir -p build && echo $status > build/failed)
+
+# The reports/dependency-analysis directories are *huge*
+RUN find build/child-projects -name dependency-analysis -type d -exec rm -r \{\} + || true
+RUN rm -f build/child-projects/app/libs/wiremock
 
 
 FROM --platform=$BUILDPLATFORM scratch AS build-output
@@ -100,11 +102,13 @@ FROM --platform=$BUILDPLATFORM base_builder AS builder
 ARG GRADLE_ARGS
 ARG GRADLE_TASK
 
-RUN --mount=type=cache,gid=$gid,uid=$uid,target=$work_dir/.gradle \
-    --mount=type=cache,gid=$gid,uid=$uid,target=$build_cache_dir \
+RUN --mount=type=cache,gid=$gid,uid=$uid,target=$build_cache_dir \
     --network=none \
     ./gradlew $GRADLE_ARGS --offline $GRADLE_TASK
 
+# The reports/dependency-analysis directories are *huge*
+RUN find build/child-projects -name dependency-analysis -type d -exec rm -r \{\} + || true
+RUN rm -f build/child-projects/app/libs/wiremock
 
 FROM --platform=$BUILDPLATFORM scratch
 ARG work_dir
