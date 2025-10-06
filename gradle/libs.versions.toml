@@ -56,7 +56,7 @@ kotest-runner-junit4 = { module = "io.kotest:kotest-runner-junit4" }
 kotest-runner-junit5 = { module = "io.kotest:kotest-runner-junit5" }
 semver4j = { module = "com.github.gundy:semver4j", version = "0.16.4" }
 
-auth0 = { module = "com.auth0:auth0", version = "2.19.0" }
+auth0 = { module = "com.auth0:auth0", version = "2.25.0" }
 
 kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version = "1.9.0" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version = "1.9.0" }
