@@ -1,7 +1,7 @@
 [versions]
 kotlin = "2.2.20"
 kotlinter = "5.2.0"
-mockk = "1.13.17"
+mockk = "1.14.6"
 clikt = "5.0.3"
 wiremock = "3.12.1"
 slf4j = "2.0.17"
