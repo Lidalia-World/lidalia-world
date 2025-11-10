@@ -105,4 +105,4 @@ taskTree = { id = "com.dorongold.task-tree", version = "4.0.1" }
 versions = { id = "com.github.ben-manes.versions", version = "0.53.0" }
 ideaext = { id = "uk.org.lidalia.ideaext", version.ref = "ideaext" }
 kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
-spring-boot = { id = "org.springframework.boot", version = "3.4.4" }
+spring-boot = { id = "org.springframework.boot", version = "3.5.7" }
