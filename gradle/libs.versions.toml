@@ -66,7 +66,7 @@ mockk-mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 mockk-core = { module = "io.mockk:mockk-core", version.ref = "mockk" }
 mockk-dsl = { module = "io.mockk:mockk-dsl", version.ref = "mockk" }
 
-snakeyaml = { module = "org.yaml:snakeyaml", version = "2.4" }
+snakeyaml = { module = "org.yaml:snakeyaml", version = "2.5" }
 
 clikt = { module = "com.github.ajalt.clikt:clikt", version.ref = "clikt" }
 clikt-core = { module = "com.github.ajalt.clikt:clikt-core", version.ref = "clikt" }
