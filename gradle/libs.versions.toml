@@ -87,7 +87,7 @@ slf4j-log4j-over-slf4j = { module = "org.slf4j:log4j-over-slf4j", version.ref = 
 commons-logging = { module = "commons-logging:commons-logging" }
 log4j = { module = "log4j:log4j" }
 
-apache-http-core5 = { module = "org.apache.httpcomponents.core5:httpcore5", version = "5.3.6" }
+apache-http-core5 = { module = "org.apache.httpcomponents.core5:httpcore5", version = "5.4" }
 apache-http-client5 = { module = "org.apache.httpcomponents.client5:httpclient5", version = "5.6" }
 
 apache-commons-lang = { module = "org.apache.commons:commons-lang3", version = "3.20.0" }
