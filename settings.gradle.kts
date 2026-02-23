@@ -30,6 +30,7 @@ include(
 include(
   "lidalia-encoding-core" to "./encoding/core",
   "lidalia-encoding-hex" to "./encoding/hex",
+  "lidalia-encoding-percent" to "./encoding/percent",
   "lidalia-repositories-api" to "./lidalia-repositories/api",
   "lidalia-repositories-postgres" to "./lidalia-repositories/postgres",
   "lidalia-repositories-in-memory" to "./lidalia-repositories/in-memory",
