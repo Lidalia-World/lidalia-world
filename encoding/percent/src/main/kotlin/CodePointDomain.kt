@@ -87,7 +87,7 @@ internal class HexSequence(private val hexChars: Array<HexCharacter>) : HexCodeP
     return CodePoint(codePoint)
   }
 
-  override val isEncoded: Boolean get() = true
+  override val isEncoded: Boolean = true
 
   override fun toUpperCase(): HexSequence {
     var changed = false
@@ -99,67 +99,47 @@ internal class HexSequence(private val hexChars: Array<HexCharacter>) : HexCodeP
       }
       upperCase
     }
-    return if (changed) {
-      HexSequence(upper)
-    } else {
-      this
+    return when {
+      changed -> HexSequence(upper)
+      else -> this
     }
   }
 
-  override val isUpperCase: Boolean get() {
-    for (hexChar in hexChars) {
-      if (!hexChar.isUpperCase) {
-        return false
-      }
-    }
-    return true
-  }
+  override val isUpperCase: Boolean = hexChars.all { it.isUpperCase }
 
   override fun toString(): String {
     val sb = StringBuilder()
-    for (hexChar in hexChars) {
-      sb.append(hexChar)
-    }
+    appendTo(sb)
     return sb.toString()
   }
 
   override fun appendTo(builder: StringBuilder) {
-    for (hexChar in hexChars) {
-      hexChar.appendTo(builder)
-    }
+    hexChars.forEach { it.appendTo(builder) }
   }
 
-  override fun equals(other: Any?): Boolean {
-    if (this === other) {
-      return true
-    }
-    if (other !is HexSequence) {
-      return false
-    }
-    return this.hexChars.contentEquals(other.hexChars)
+  override fun equals(other: Any?): Boolean = when {
+    this === other -> true
+    other !is HexSequence -> false
+    else -> this.hexChars.contentEquals(other.hexChars)
   }
 
   override fun hashCode(): Int = hexChars.contentHashCode()
 }
 
 internal data class HexCharacter(val digit1: Char, val digit2: Char) : HexCodePoint {
-  override fun decode(): CodePoint = CodePoint(
-    (
-      (HexCodePoint.hexDigitToInt(digit1) shl 4) or HexCodePoint.hexDigitToInt(
-        digit2,
-      )
-    ).toChar().code,
-  )
+  override fun decode(): CodePoint {
+    val i = (HexCodePoint.hexDigitToInt(digit1) shl 4) or HexCodePoint.hexDigitToInt(digit2)
+    return CodePoint(i.toChar().code)
+  }
 
   override val isEncoded: Boolean get() = true
 
   override fun toUpperCase(): HexCharacter {
     val char1Upper = digit1.uppercaseChar()
     val char2Upper = digit2.uppercaseChar()
-    return if (char1Upper == digit1 && char2Upper == digit2) {
-      this
-    } else {
-      HexCharacter(char1Upper, char2Upper)
+    return when {
+      char1Upper == digit1 && char2Upper == digit2 -> this
+      else -> HexCharacter(char1Upper, char2Upper)
     }
   }
 

@@ -11,18 +11,10 @@ class PercentCodec private constructor(
 ) : Codec<String, String, PercentEncoded> {
 
   override fun encode(decoded: String): PercentEncoded {
-    val result = AppendableToAwareStringBuilder()
-    decoded.codePoints().asSequence().joinToString("") {
+    val result = decoded.codePoints().asSequence().joinToString("") {
       CodePoint(it).maybePercentEncode(charactersThatDoNotNeedEncoding).toString()
     }
-    CodePointStream(decoded).forEach { codePoint: CodePoint ->
-      result.append(
-        codePoint.maybePercentEncode(
-          charactersThatDoNotNeedEncoding,
-        ),
-      )
-    }
-    return PercentEncoded(result.toString(), decoded)
+    return PercentEncoded(result, decoded)
   }
 
   override fun decode(encoded: String): Right<String> = Right(rawDecode(encoded))
@@ -33,12 +25,8 @@ class PercentCodec private constructor(
     Right(PercentEncoded(encoded, rawDecode(encoded)))
 
   private fun rawDecode(encoded: String): String {
-    val result = AppendableToAwareStringBuilder()
-    val percentEncodedStream = PercentEncodedStream(encoded)
-    while (percentEncodedStream.hasNext()) {
-      result.append(percentEncodedStream.next().decode())
-    }
-    val value = result.toString()
-    return value
+    val result = StringBuilder()
+    PercentEncodedStream(encoded).forEach { it.appendTo(result) }
+    return result.toString()
   }
 }

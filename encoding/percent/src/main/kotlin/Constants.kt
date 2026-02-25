@@ -1,6 +1,6 @@
 package uk.org.lidalia.encoding.percent
 
-class Constants private constructor() {
+internal class Constants private constructor() {
   init {
     throw UnsupportedOperationException("Not instantiable")
   }
