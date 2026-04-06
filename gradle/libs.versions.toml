@@ -1,5 +1,5 @@
 [versions]
-kotlin = "2.3.0"
+kotlin = "2.3.10"
 kotlinter = "5.2.0"
 mockk = "1.14.7"
 clikt = "5.1.0"
